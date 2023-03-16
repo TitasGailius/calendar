@@ -14,7 +14,8 @@
         }
     ],
     "require": {
-        "php": "^8.0"
+        "php": "^8.0",
+        "google/apiclient": "^2.12.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0",
@@ -23,16 +24,24 @@
     },
     "autoload": {
         "psr-4": {
-            "TitasGailius\\Terminal\\": "src/"
+            "TitasGailius\\Calendar\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "TitasGailius\\Terminal\\Tests\\": "tests/"
+            "TitasGailius\\Calendar\\Tests\\": "tests/"
         }
     },
     "config": {
         "sort-packages": true
+    },
+    "extra": {
+        "google/apiclient-services": [
+            "Calendar"
+        ]
+    },
+    "scripts": {
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
