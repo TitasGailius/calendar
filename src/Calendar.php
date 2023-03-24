@@ -2,46 +2,88 @@
 
 namespace TitasGailius\Calendar;
 
+use Carbon\Carbon;
+use Closure;
+use Google\Client;
+use Google\Service\Calendar as CalendarService;
+use GuzzleHttp\Client as Guzzle;
+use Microsoft\Graph\Graph;
 use TitasGailius\Calendar\Providers\GoogleProvider;
+use TitasGailius\Calendar\Providers\MicrosoftProvider;
 
 class Calendar
 {
     /**
      * Instantiate a new Google proviedr instance.
      *
-     * @param array{
-     *             'application_name'?: string,
-     *             'base_path'?: string,
-     *             'client_id': string,
-     *             'client_secret': string,
-     *             'scopes'?: array<int, string>|string,
-     *             'quota_project'?: string,
-     *             'redirect_uri': string,
-     *             'credentials': string|array|\Google\Auth\CredentialsLoader
-     *         }  $config
+     * @param  mixed[]  $client
+     * @param  string|array{
+     *         'access_token': string,
+     *         'refresh_token': string,
+     *         'created': int,
+     *         'expires_in': int,
+     * }  $token
      */
-    public static function google(array $config): GoogleProvider
+    public static function google(array $client, array|string $token, Closure $onTokenRefresh): GoogleProvider
     {
-        $token = [
-            'access_token' => $config['access_token'],
-            'refresh_token' => $config['refresh_token'],
-        ];
-
-        unset($config['access_token']);
-        unset($config['refresh_token']);
-
-        $client = new Client($config);
-
+        $client = new Client($client);
         $client->setAccessToken($token);
 
-        return new GoogleProvider($client);
+        if ($client->isAccessTokenExpired()) {
+            $onTokenRefresh($client->fetchAccessTokenWithRefreshToken(
+                $client->getRefreshToken()
+            ));
+        }
+
+        return new GoogleProvider(new CalendarService($client));
     }
 
     /**
      * Instantiate a new Microsoft provider instance.
+     *
+     * @param  mixed[]  $config
      */
-    public static function microsoft(array $config): MicrosoftProvider
+    public static function microsoft(array $client, array $token, Closure $onTokenRefresh): MicrosoftProvider
     {
-        //
+        $graph = new Graph;
+
+        $expirationDate = Carbon::parse($token['created'])->addSeconds($token['expires_in']);
+
+        if (Carbon::now()->isAfter($expirationDate)) {
+            $token = static::refreshMicrosoftToken($client, $token['refresh_token']);
+
+            $onTokenRefresh($token);
+        }
+
+        $graph->setAccessToken($token['access_token']);
+
+        return new MicrosoftProvider($graph);
+    }
+
+    /**
+     * Refresh microsoft token.
+     *
+     * @param  array  $client
+     * @return array
+     */
+    protected static function refreshMicrosoftToken(array $client, string $refreshToken): array
+    {
+        $response = (new Guzzle)->post('https://login.microsoftonline.com/common/oauth2/v2.0/token', [
+            'form_params' => [
+                'client_id' => $client['client_id'],
+                'client_secret' => $client['client_secret'],
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+            ],
+        ]);
+
+        $payload = json_decode((string) $response->getBody(), true);
+
+        return [
+            'refresh_token' => $payload['refresh_token'],
+            'access_token' => $payload['access_token'],
+            'created' => time(),
+            'expires_in' => $payload['expires_in'],
+        ];
     }
 }

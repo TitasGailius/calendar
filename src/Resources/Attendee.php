@@ -2,13 +2,13 @@
 
 namespace TitasGailius\Calendar\Resources;
 
-class Attendee
+class Attendee extends Resource
 {
     /**
      * Instantiate a new attendee instance.
      */
     public function __construct(
         public string $email,
-        public Rsvp $rsvp,
+        public ?Rsvp $rsvp = null,
     ) {}
 }

@@ -4,34 +4,30 @@ namespace TitasGailius\Calendar\Resources;
 
 use DateTimeInterface;
 
-class Event
+class Event extends Resource
 {
-    /**
-     * Event ID.
-     */
-    public string $id;
-
     /**
      * Instantiate a new event instance.
      *
-     * @param  array<int,\TitasGailius\Calendar\Attendee>
+     * @param  array<int,\TitasGailius\Calendar\Resources\Attendee>  $attendees
+     * @param  mixed[]  $raw
      */
     public function __construct(
-        public string $subject,
-        public array $attendees,
-        public DateTimeInterface $start,
-        public DateTimeInterface $end,
-        public Organiser $organiser = null,
+        public ?string $title = null,
+        public ?DateTimeInterface $start = null,
+        public ?DateTimeInterface $end = null,
+        public ?Organiser $organiser = null,
+        public array $attendees = [],
         public string $calendar = 'primary',
+        public ?string $id = null,
+        public array $raw = [],
     ) {}
 
     /**
-     * Set event ID.
+     * Parse the given event.
      */
-    public function setId(string $id): static
+    public static function parse(string|Event $event): Event
     {
-        $this->id = $id;
-
-        return $this;
+        return is_string($event) ? new Event(id: $event) : $event;
     }
 }

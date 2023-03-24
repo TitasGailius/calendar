@@ -9,9 +9,16 @@ interface Provider
     /**
      * List calendars.
      *
-     * @return array<int, \TitasGailius\Calendar\Calendar>
+     * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\Calendar>
      */
-    public function getCalendars(): array;
+    public function getCalendars(): Paginator;
+
+    /**
+     * List events.
+     *
+     * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\Event>
+     */
+    public function getEvents(): Paginator;
 
     /**
      * Create an event.
@@ -21,7 +28,7 @@ interface Provider
     /**
      * Get event.
      */
-    public function getEvent(string $id): ?Event;
+    public function getEvent(string|Event $id): ?Event;
 
     /**
      * Save a new event.
@@ -31,5 +38,5 @@ interface Provider
     /**
      * Delete a given event.
      */
-    public function deleteEvent(string|Event $event);
+    public function deleteEvent(string|Event $event): void;
 }
