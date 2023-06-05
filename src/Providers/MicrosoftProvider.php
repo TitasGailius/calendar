@@ -2,13 +2,18 @@
 
 namespace TitasGailius\Calendar\Providers;
 
+use GuzzleHttp\Exception\ClientException;
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Http\GraphCollectionRequest;
 use Microsoft\Graph\Model\Calendar as MicrosoftCalendar;
+use Microsoft\Graph\Model\Event as MicrosoftEvent;
 use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Contracts\Provider;
 use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\Event;
+use TitasGailius\Calendar\Resources\EventFilters;
+use TitasGailius\Calendar\Resources\GeneralCollectionPaginator;
+use TitasGailius\Calendar\Resources\Page;
 
 class MicrosoftProvider implements Provider
 {
@@ -20,58 +25,120 @@ class MicrosoftProvider implements Provider
     ) {}
 
     /**
-     * List calendars.
-     *
-     * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\Calendar>
+     * {@inheritdoc}
      */
-    public function getCalendars(): Paginator
+    public function getCalendars(array $options = []): Paginator
     {
-        return MicrosoftFactory::paginator(Calendar::class,
-            $this->graph
-                ->createCollectionRequest('GET', '/me/calendars')
-                ->setReturnType(MicrosoftCalendar::class),
+        $request = $this->graph
+            ->createCollectionRequest('GET', '/me/calendars')
+            ->setReturnType(MicrosoftCalendar::class);
+
+        return new GeneralCollectionPaginator(
+            next: fn () => new Page(
+                raw: $page = $request->getPage(),
+                items: MicrosoftFactory::toCalendarCollection($page),
+                hasNextPage: ! $request->isEnd(),
+                nextPageOptions: [],
+            ),
+            reset: fn () => $this->getCalendars($options),
         );
     }
 
     /**
-     * List events.
+     * {@inheritdoc}
+     */
+    public function getEvents(EventFilters $filters, array $options = []): Paginator
+    {
+        $url = $filters->calendar === 'primary'
+            ? '/me/events'.MicrosoftFactory::queryStringFromFilters($filters)
+            : '/me/calendars/'.$filters->calendar.'/events'.MicrosoftFactory::queryStringFromFilters($filters);
+
+        $request = $this->graph
+                ->createCollectionRequest('GET', $url)
+                ->setReturnType(MicrosoftEvent::class);
+
+        return new GeneralCollectionPaginator(
+            next: fn () => new Page(
+                raw: $page = $request->getPage(),
+                items: MicrosoftFactory::toEventCollection($page),
+                hasNextPage: ! $request->isEnd(),
+                nextPageOptions: [],
+            ),
+            reset: fn () => $this->getEvents($filters, $options),
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEvent(EventFilters $filters, array $options = []): ?Event
+    {
+        return $this->handleNotFound(fn () => MicrosoftFactory::toEvent(
+            $this->graph
+                ->createRequest('GET', MicrosoftFactory::toEventUrl($filters->id, $filters->calendar))
+                ->setReturnType(MicrosoftEvent::class)
+                ->execute()
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createEvent(Event $event, array $options = []): Event
+    {
+        return MicrosoftFactory::toEvent(
+            $this->graph
+                ->createRequest('POST', '/me/events')
+                ->attachBody(MicrosoftFactory::fromEvent($event))
+                ->setReturnType(MicrosoftEvent::class)
+                ->execute()
+        );
+    }
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function updateEvent(Event $event, array $options = []): Event
+    {
+        $updated = MicrosoftFactory::toEvent(
+            $this->graph
+                ->createRequest('PATCH', MicrosoftFactory::toEventUrl($event->id, $event->calendar))
+                ->attachBody(MicrosoftFactory::fromEvent($event))
+                ->setReturnType(MicrosoftEvent::class)
+                ->execute()
+        );
+
+        return $event->update($updated);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteEvent(EventFilters $filters, array $options = []): void
+    {
+        $this->graph
+            ->createRequest('DELETE', MicrosoftFactory::toEventUrl($filters->id, $filters->calendar))
+            ->execute();
+    }
+
+    /**
+     * Handle not found exception.
      *
-     * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\Event>
+     * @template TValue
+     * @param  callable(): TValue  $callback
+     * @return ?TValue
      */
-    public function getEvents(): Paginator
+    protected function handleNotFound(callable $callback): mixed
     {
-        throw new \Exception('Method getEvents() is not implemented.');
-    }
+        try {
+            return $callback();
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() === 404) {
+                return null;
+            }
 
-    /**
-     * Create an event.
-     */
-    public function createEvent(Event $event): Event
-    {
-        throw new \Exception('Method createEvent() is not implemented.');
-    }
-
-    /**
-     * Get event.
-     */
-    public function getEvent(string|Event $id): ?Event
-    {
-        //
-    }
-
-    /**
-     * Save a new event.
-     */
-    public function updateEvent(Event $event): Event
-    {
-        throw new \Exception('Method getEvent() is not implemented.');
-    }
-
-    /**
-     * Delete a given event.
-     */
-    public function deleteEvent(string|Event $event): void
-    {
-        throw new \Exception('Method deleteEvent() is not implemented.');
+            throw $e;
+        }
     }
 }

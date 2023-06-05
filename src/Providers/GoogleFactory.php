@@ -2,8 +2,8 @@
 
 namespace TitasGailius\Calendar\Providers;
 
-use Exception;
 use Carbon\Carbon;
+use Exception;
 use Google\Model;
 use Google\Service\Calendar\CalendarList as GoogleCalendarList;
 use Google\Service\Calendar\CalendarListEntry as GoogleCalendarListEntry;
@@ -11,24 +11,26 @@ use Google\Service\Calendar\Event as GoogleEvent;
 use Google\Service\Calendar\EventAttendee as GoogleEventAttendee;
 use Google\Service\Calendar\EventDateTime;
 use Google\Service\Calendar\Events as GoogleEvents;
+use TitasGailius\Calendar\Contracts\CalendarPaginator;
 use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Resources\Attendee;
 use TitasGailius\Calendar\Resources\Calendar;
+use TitasGailius\Calendar\Resources\CalendarCollection;
 use TitasGailius\Calendar\Resources\Event;
+use TitasGailius\Calendar\Resources\EventCollection;
+use TitasGailius\Calendar\Resources\EventFilters;
+use TitasGailius\Calendar\Resources\GeneralPaginator;
 use TitasGailius\Calendar\Resources\Organiser;
-use TitasGailius\Calendar\Resources\Paginator as GeneralPaginator;
 use TitasGailius\Calendar\Resources\Rsvp;
 
 class GoogleFactory
 {
     /**
      * Map calendar list to calendar array.
-     *
-     * @return \TitasGailius\Calendar\Resources\Calendar[]
      */
-    public static function toCalendarArray(GoogleCalendarList $list): array
+    public static function toCalendarCollection(GoogleCalendarList $list): CalendarCollection
     {
-        return array_map([static::class, 'toCalendar'], $list->getItems());
+        return new CalendarCollection(array_map([static::class, 'toCalendar'], $list->getItems()));
     }
 
     /**
@@ -36,21 +38,20 @@ class GoogleFactory
      */
     public static function toCalendar(GoogleCalendarListEntry $calendar): Calendar
     {
-        return (new Calendar(
+        return new Calendar(
             provider: 'google',
             id: $calendar->getId(),
             name: $calendar->getSummary(),
-        ))->setRaw(static::toArray($calendar));
+            raw: static::toArray($calendar),
+        );
     }
 
     /**
      * Map google events to events array.
-     *
-     * @return \TitasGailius\Calendar\Resources\Event[]
      */
-    public static function toEventArray(GoogleEvents $events): array
+    public static function toEventCollection(GoogleEvents $events): EventCollection
     {
-        return array_map([static::class, 'toEvent'], $events->getItems());
+        return new EventCollection(array_map([static::class, 'toEvent'], $events->getItems()));
     }
 
     /**
@@ -58,14 +59,15 @@ class GoogleFactory
      */
     public static function toEvent(GoogleEvent $event): Event
     {
-        return (new Event(
+        return new Event(
             title: $event->getSummary(),
             attendees: array_map([static::class, 'toAttendee'], $event->getAttendees()),
             start: Carbon::parse($event->getStart()->getDateTime()),
             end: Carbon::parse($event->getEnd()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmail()),
             id: $event->getId(),
-        ))->setRaw(static::toArray($event));
+            raw: static::toArray($event),
+        );
     }
 
     /**
@@ -73,7 +75,7 @@ class GoogleFactory
      */
     public static function toAttendee(GoogleEventAttendee $attendee): Attendee
     {
-        return (new Attendee(
+        return new Attendee(
             email: $attendee->getEmail(),
             rsvp: match ($attendee->getResponseStatus()) {
                 'needsAction' => Rsvp::PENDING,
@@ -82,7 +84,7 @@ class GoogleFactory
                 'accepted' => Rsvp::ACCEPTED,
                 default => Rsvp::PENDING,
             },
-        ))->setRaw(static::toArray($attendee));
+        );
     }
 
     /**
@@ -108,28 +110,16 @@ class GoogleFactory
     }
 
     /**
-     * Create a new paginator instance.
-     *
-     * @template TValue
-     * @param  class-string<TValue>  $mapper
-     * @return \TitasGailius\Calendar\Contracts\Paginator<TValue>
+     * Generate options from the given event filters.
      */
-    public static function paginator(string $mapper, callable $getter): Paginator
+    public static function fromFilters(EventFilters $filters)
     {
-        $method = match($mapper) {
-            Calendar::class => 'toCalendarArray',
-            Event::class => 'toEventArray',
-            default => throw new Exception('Unsupported mapper class.'),
-        };
-
-        return new GeneralPaginator(
-            next: fn ($page) => match (true) {
-                is_null($page) => $getter([]),
-                is_null($page->getNextPageToken()) => null,
-                default => $getter($page->getNextPageToken()),
-            },
-            mapper: fn (mixed $value) => static::{$method}($value),
-        );
+        return $filters->options([
+            'start' => fn (Carbon $start) => ['timeMax' => $filters->start->toRfc3339String()],
+            'end' => fn (Carbon $end) => ['timeMin' => $filters->end->toRfc3339String()],
+            'limit' => fn (int $limit) => ['maxResults' => $limit],
+            'search' => fn (string $search) => ['q' => $search],
+        ]);
     }
 
     /**

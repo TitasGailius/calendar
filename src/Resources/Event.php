@@ -3,31 +3,26 @@
 namespace TitasGailius\Calendar\Resources;
 
 use DateTimeInterface;
+use TitasGailius\Calendar\Resources\Attendee;
+use TitasGailius\Calendar\Resources\Recurrence;
 
 class Event extends Resource
 {
     /**
      * Instantiate a new event instance.
      *
-     * @param  array<int,\TitasGailius\Calendar\Resources\Attendee>  $attendees
+     * @param  \TitasGailius\Calendar\Resources\Attendee[]|string[]  $attendees
      * @param  mixed[]  $raw
      */
     public function __construct(
-        public ?string $title = null,
-        public ?DateTimeInterface $start = null,
-        public ?DateTimeInterface $end = null,
+        public string $title,
+        public DateTimeInterface $start,
+        public DateTimeInterface $end,
         public ?Organiser $organiser = null,
         public array $attendees = [],
         public string $calendar = 'primary',
+        public ?Recurrence $recurrence = null,
         public ?string $id = null,
         public array $raw = [],
     ) {}
-
-    /**
-     * Parse the given event.
-     */
-    public static function parse(string|Event $event): Event
-    {
-        return is_string($event) ? new Event(id: $event) : $event;
-    }
 }

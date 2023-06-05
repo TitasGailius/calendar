@@ -16,7 +16,7 @@ and a callback that is run when an expired access token is refreshed.
 ```php
 $calendar = Calendar::google(
     client: [
-        'client_id' => 'GOOGLE_CLIENT_ID,'
+        'client_id' => 'GOOGLE_CLIENT_ID',
         'client_secret' => 'GOOGLE_CLIENT_SECRET',
     ],
     token: [
@@ -36,6 +36,10 @@ and a callback that is run when an expired access token is refreshed.
 
 ```php
 $calendar = Calendar::microsoft(
+    client: [
+        'client_id' => 'MICROSOFT_CLIENT_ID',
+        'client_secret' => 'MICROSOFT_CLIENT_SECRET',
+    ],
     token: [
         'refresh_token' => 'USER_REFRESH_TOKEN',
         'access_token' => 'USER_ACCESS_TOKEN',
@@ -66,7 +70,7 @@ $event = $calendar->createEvent(new Event(
 To retrieve an event, simply pass an `id` of the event to the `getEvent` method.
 
 ```php
-$event = $calendar->getEvent('442d81dvg884c57an0g778e184'));
+$event = $calendar->getEvent('442d81dvg884c57an0g778e184');
 ```
 
 ## Updating Events
@@ -75,7 +79,7 @@ To update an event, simply pass an `Event` instance to the `updateEvent` method.
 
 ```php
 $event->title = 'Updated Event Title';
-$calendar->updateEvent($event));
+$calendar->updateEvent($event);
 ```
 
 ## Deleting Events
@@ -83,7 +87,7 @@ $calendar->updateEvent($event));
 To delete an event, simply pass an event id to the `deleteEvent` method.
 
 ```php
-$calendar->deleteEvent('442d81dvg884c57an0g778e184'));
+$calendar->deleteEvent('442d81dvg884c57an0g778e184');
 ```
 
 ## Listing Events
@@ -175,7 +179,7 @@ new Calendar(
 
 # Extending
 
-To add a new provider, simple implement the `Provider` interface with your provider.
+To add a new provider, simple implement the `TitasGailius\Calendar\Contracts\Provider` interface for your provider.
 
 ```php
 interface Provider
@@ -183,36 +187,46 @@ interface Provider
     /**
      * List calendars.
      *
+     * @param  mixed[]  $options
      * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\Calendar>
      */
-    public function getCalendars(): Paginator;
+    public function getCalendars(array $options = []): Paginator;
 
     /**
      * List events.
      *
+     * @param  mixed[]  $options
      * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\Event>
      */
-    public function getEvents(): Paginator;
+    public function getEvents(array $options = []): Paginator;
 
     /**
      * Create an event.
+     *
+     * @param  mixed[]  $options
      */
-    public function createEvent(Event $event): Event;
+    public function createEvent(Event $event, array $options = []): Event;
 
     /**
      * Get event.
+     *
+     * @param  mixed[]  $options
      */
-    public function getEvent(string|Event $id): ?Event;
+    public function getEvent(string|Event $event, array $options = []): ?Event;
 
     /**
      * Save a new event.
+     *
+     * @param  mixed[]  $options
      */
-    public function updateEvent(Event $event): Event;
+    public function updateEvent(Event $event, array $options = []): Event;
 
     /**
      * Delete a given event.
+     *
+     * @param  mixed[]  $options
      */
-    public function deleteEvent(string|Event $event): void;
+    public function deleteEvent(string|Event $event, array $options = []): void;
 }
 ```
 

@@ -8,8 +8,11 @@ use Google\Client;
 use Google\Service\Calendar as CalendarService;
 use GuzzleHttp\Client as Guzzle;
 use Microsoft\Graph\Graph;
+use TitasGailius\Calendar\Contracts\Provider;
+use TitasGailius\Calendar\Contracts\Repository as RepositoryContract;
 use TitasGailius\Calendar\Providers\GoogleProvider;
 use TitasGailius\Calendar\Providers\MicrosoftProvider;
+use TitasGailius\Calendar\Repository;
 
 class Calendar
 {
@@ -24,7 +27,7 @@ class Calendar
      *         'expires_in': int,
      * }  $token
      */
-    public static function google(array $client, array|string $token, Closure $onTokenRefresh): GoogleProvider
+    public static function google(array $client, array|string $token, Closure $onTokenRefresh): RepositoryContract
     {
         $client = new Client($client);
         $client->setAccessToken($token);
@@ -35,15 +38,16 @@ class Calendar
             ));
         }
 
-        return new GoogleProvider(new CalendarService($client));
+        return new Repository('google', new GoogleProvider(new CalendarService($client)));
     }
 
     /**
      * Instantiate a new Microsoft provider instance.
      *
-     * @param  mixed[]  $config
+     * @param  mixed[]  $client
+     * @param  mixed[]  $token
      */
-    public static function microsoft(array $client, array $token, Closure $onTokenRefresh): MicrosoftProvider
+    public static function microsoft(array $client, array $token, Closure $onTokenRefresh): RepositoryContract
     {
         $graph = new Graph;
 
@@ -57,14 +61,14 @@ class Calendar
 
         $graph->setAccessToken($token['access_token']);
 
-        return new MicrosoftProvider($graph);
+        return new Repository('microsoft', new MicrosoftProvider($graph));
     }
 
     /**
      * Refresh microsoft token.
      *
-     * @param  array  $client
-     * @return array
+     * @param  mixed[]  $client
+     * @return mixed[]
      */
     protected static function refreshMicrosoftToken(array $client, string $refreshToken): array
     {

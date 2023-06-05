@@ -6,8 +6,15 @@ use Google\Service\Calendar as CalendarService;
 use Google\Service\Exception;
 use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Contracts\Provider;
+use TitasGailius\Calendar\Providers\GoogleFactory;
+use TitasGailius\Calendar\Providers\Google\GoogleCalendarPaginator;
+use TitasGailius\Calendar\Providers\Google\GoogleEventPaginator;
 use TitasGailius\Calendar\Resources\Calendar;
+use TitasGailius\Calendar\Resources\CalendarCollection;
+use TitasGailius\Calendar\Resources\CollectionPaginator;
 use TitasGailius\Calendar\Resources\Event;
+use TitasGailius\Calendar\Resources\EventCollection;
+use TitasGailius\Calendar\Resources\EventFilters;
 
 class GoogleProvider implements Provider
 {
@@ -19,81 +26,71 @@ class GoogleProvider implements Provider
     ) {}
 
     /**
-     * List calendars.
-     *
-     * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\Calendar>
+     * {@inheritdoc}
      */
-    public function getCalendars(): Paginator
+    public function getCalendars(array $options = []): Paginator
     {
-        return GoogleFactory::paginator(Calendar::class, function (array $options) {
-            return $this->service->calendarList->listCalendarList($options);
-        });
+        return new GoogleCalendarPaginator($this->service, $options);
     }
 
     /**
-     * List events.
-     *
-     * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\Event>
+     * {@inheritdoc}
      */
-    public function getEvents(): Paginator
+    public function getEvents(EventFilters $filters, array $options = []): Paginator
     {
-        return GoogleFactory::paginator(Event::class, function (array $options) {
-            return $this->service->events->listEvents('primary', $options);
-        });
+        return new GoogleEventPaginator($this->service, $filters, $options);
     }
 
     /**
-     * Create an event.
+     * {@inheritdoc}
      */
-    public function createEvent(Event $event): Event
+    public function createEvent(Event $event, array $options = []): Event
     {
         $created = GoogleFactory::toEvent($this->service->events->insert(
-            $event->calendar, GoogleFactory::fromEvent($event)
+            $event->calendar, GoogleFactory::fromEvent($event), $options
         ));
 
         return $event->update($created);
     }
 
     /**
-     * Get event.
+     * {@inheritdoc}
      */
-    public function getEvent(string|Event $event): ?Event
+    public function getEvent(EventFilters $filters, array $options = []): ?Event
     {
-        $event = Event::parse($event);
-
-        return GoogleFactory::toEvent($this->handleNotFound(function () use ($event) {
-            return $this->service->events->get($event->calendar, $event->id);
+        return GoogleFactory::toEvent($this->handleNotFound(function () use ($filters, $options) {
+            return $this->service->events->get($filters->calendar, $filters->id, $options);
         }));
     }
 
     /**
-     * Save a new event.
+     * {@inheritdoc}
      */
-    public function updateEvent(Event $event): Event
+    public function updateEvent(Event $event, array $options = []): Event
     {
         $updated = GoogleFactory::toEvent($this->service->events->patch(
             $event->calendar,
             $event->id,
             GoogleFactory::fromEvent($event),
+            $options,
         ));
 
         return $event->update($updated);
     }
 
     /**
-     * Delete a given event.
+     * {@inheritdoc}
      */
-    public function deleteEvent(string|Event $event): void
+    public function deleteEvent(EventFilters $filters, array $options = []): void
     {
-        $event = Event::parse($event);
-
-        $this->service->events->delete($event->calendar, $event->id);
+        $this->service->events->delete($filters->calendar, $filters->id, $options);
     }
 
     /**
      * Handle not found exception.
      *
      * @template TValue
+     *
      * @param  callable(): TValue  $callback
      * @return ?TValue
      */

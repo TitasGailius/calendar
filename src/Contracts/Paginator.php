@@ -2,22 +2,25 @@
 
 namespace TitasGailius\Calendar\Contracts;
 
+use TitasGailius\Calendar\Resources\Collection;
+use TitasGailius\Calendar\Resources\Page;
+
 /**
- * @template TValue
+ * @template TCollection of \TitasGailius\Calendar\Resources\Collection
  */
 interface Paginator
 {
     /**
      * Get next page.
      *
-     * @return  TValue[]|null
+     * @return Page<TCollection>|null
      */
-    public function next(): ?array;
+    public function next(): ?Page;
 
     /**
      * Loop through each item.
      *
-     * @param  callable(TValue): mixed  $callback
+     * @param  callable  $callback
      * @return $this
      */
     public function each(callable $callback): static;
@@ -25,7 +28,7 @@ interface Paginator
     /**
      * Collect items from all pages.
      *
-     * @return TValue[]
+     * @return TCollection
      */
-    public function all(): array;
+    public function all(): Collection;
 }

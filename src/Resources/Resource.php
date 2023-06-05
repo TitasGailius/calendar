@@ -4,18 +4,8 @@ namespace TitasGailius\Calendar\Resources;
 
 use ReflectionClass;
 
-/**
- * @template TValue of array
- */
 abstract class Resource
 {
-    /**
-     * Raw resource value.
-     *
-     * @var TValue
-     */
-    protected array $raw;
-
     /**
      * Update the current resource.
      */
@@ -36,26 +26,5 @@ abstract class Resource
         }
 
         return $this;
-    }
-
-    /**
-     * Set raw value.
-     *
-     * @param  TValue  $raw
-     * @return $this
-     */
-    public function setRaw(array $raw): static
-    {
-        $this->raw = $raw;
-
-        return $this;
-    }
-
-    /**
-     * Get raw value.
-     */
-    public function getRaw(): ?array
-    {
-        return $this->raw ?? null;
     }
 }
