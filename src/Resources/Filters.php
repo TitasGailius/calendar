@@ -18,7 +18,6 @@ class Filters
         public readonly bool $expand = false,
         public readonly ?int $limit = null,
         public readonly ?string $search = null,
-        public readonly array $options = [],
         public readonly string $calendar = 'primary',
     ) {}
 

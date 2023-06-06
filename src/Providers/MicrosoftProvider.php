@@ -49,9 +49,13 @@ class MicrosoftProvider implements Provider
      */
     public function getEvents(Filters $filters, array $options = []): Paginator
     {
-        $url = $filters->calendar === 'primary'
-            ? '/me/events'.MicrosoftFactory::queryStringFromFilters($filters)
-            : '/me/calendars/'.$filters->calendar.'/events'.MicrosoftFactory::queryStringFromFilters($filters);
+        $endpoint = match (true) {
+            $filters->expand === true => '/me/calendar/calendarView',
+            $filters->calendar === 'primary' => '/me/events',
+            default => '/me/calendars/'.$filters->calendar.'/events',
+        };
+
+        $url = $endpoint.'?'.MicrosoftFactory::queryStringFromFilters($filters);
 
         $request = $this->graph
                 ->createCollectionRequest('GET', $url)

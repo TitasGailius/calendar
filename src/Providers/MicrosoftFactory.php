@@ -113,7 +113,10 @@ class MicrosoftFactory
         $new = new MicrosoftEvent;
 
         $new->setSubject($event->title);
-        $new->setOrganizer(static::fromOrganiser($event->organiser));
+
+        if ($event->organiser) {
+            $new->setOrganizer(static::fromOrganiser($event->organiser));
+        }
 
         if ($event->id) {
             $new->setId($event->id);
@@ -175,7 +178,9 @@ class MicrosoftFactory
      */
     public static function fromOrganiser(Organiser $organiser): MicrosoftRecipient
     {
-        return (new MicrosoftRecipient)->setEmailAddress(static::fromEmail($organiser->email));
+        return (new MicrosoftRecipient)->setEmailAddress(
+            static::fromEmail($organiser->email)
+        );
     }
 
     /**
@@ -183,22 +188,56 @@ class MicrosoftFactory
      */
     public static function queryStringFromFilters(Filters $filters): string
     {
-        $query = [];
+        $query = $filters->expand === true
+            ? static::queryForExpandedEvents($filters)
+            : static::queryForSingleEvents($filters);
 
         if ($limit = $filters->limit) {
             $query['$top'] = $limit;
         }
 
-        $filterOptions = $filters->options([
-            'start' => fn (Carbon $start) => ["start/dateTime ge '{$filters->start->toRfc3339String()}'"],
-            'end' => fn (Carbon $end) => ["end/dateTime le '{$filters->start->toRfc3339String()}'"],
+        $query['$filter'] = array_merge($query['$filter'] ?? [], $filters->options([
             'search' => fn (string $search) => ["contains(subject, '{$search}')"],
-        ]);
+        ]));
 
-        if (! empty($filterOptions)) {
-            $query['$filter'] = implode(' and ', $filterOptions);
+        if (empty($query['$filter'])) {
+            unset($query['$filter']);
+        } else {
+            $query['$filter'] = implode(' and ', $query['$filter']);
         }
 
         return http_build_query($query);
+    }
+
+    /**
+     * Get query values for expanded events.
+     */
+    public static function queryForExpandedEvents(Filters $filters): array
+    {
+        if ($filters->expand && (is_null($filters->start) || is_null($filters->end))) {
+            throw new InvalidArgumentException('Start and end dates must be specified when expanding Microsoft events.');
+        }
+
+        return [
+            'startDateTime' => Carbon::parse($filters->start)->toRfc3339String(),
+            'endDateTime' => Carbon::parse($filters->end)->toRfc3339String(),
+        ];
+    }
+
+    /**
+     * Get query valeus for single events.
+     */
+    public static function queryForSingleEvents(Filters $filters): array
+    {
+        return [
+            '$filter' => $filters->options([
+                'start' => fn (DateTimeInterface $start) => [
+                    'start/dateTime ge \''.Carbon::parse($start)->toRfc3339String().'\'',
+                ],
+                'end' => fn (DateTimeInterface $end) => [
+                    'end/dateTime le \''.Carbon::parse($end)->toRfc3339String().'\'',
+                ],
+            ]),
+        ];
     }
 }
