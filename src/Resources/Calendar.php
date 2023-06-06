@@ -15,6 +15,6 @@ class Calendar extends Resource
         public readonly string $provider,
         public readonly string $id,
         public readonly string $name,
-        public readonly array $raw,
+        protected readonly array $raw,
     ) {}
 }

@@ -6,7 +6,7 @@ use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Contracts\Provider;
 use TitasGailius\Calendar\Contracts\Repository as RepositoryContract;
 use TitasGailius\Calendar\Resources\Event;
-use TitasGailius\Calendar\Resources\EventFilters;
+use TitasGailius\Calendar\Resources\Filters;
 
 final class Repository implements RepositoryContract
 {
@@ -32,9 +32,9 @@ final class Repository implements RepositoryContract
     /**
      * {@inheritdoc}
      */
-    public function getEvents(?EventFilters $filters = null): Paginator
+    public function getEvents(?Filters $filters = null): Paginator
     {
-        return $this->provider->getEvents($filters ?? new EventFilters, $this->options);
+        return $this->provider->getEvents($filters ?? new Filters, $this->options);
     }
 
     /**
@@ -48,9 +48,9 @@ final class Repository implements RepositoryContract
     /**
      * {@inheritdoc}
      */
-    public function getEvent(string|Event|EventFilters|null $filters = null): ?Event
+    public function getEvent(string|Event|Filters|null $filters = null): ?Event
     {
-        return $this->provider->getEvent(EventFilters::parse($filters), $this->options);
+        return $this->provider->getEvent(Filters::parse($filters), $this->options);
     }
 
     /**
@@ -64,9 +64,9 @@ final class Repository implements RepositoryContract
     /**
      * {@inheritdoc}
      */
-    public function deleteEvent(string|Event|EventFilters|null $filters = null): void
+    public function deleteEvent(string|Event|Filters|null $filters = null): void
     {
-        $this->provider->deleteEvent(EventFilters::parse($filters), $this->options);
+        $this->provider->deleteEvent(Filters::parse($filters), $this->options);
     }
 
     /**

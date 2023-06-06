@@ -23,6 +23,6 @@ class Event extends Resource
         public ?Recurrence $recurrence = null,
         public ?Organiser $organiser = null,
         public ?string $id = null,
-        public array $raw = [],
+        protected array $raw = [],
     ) {}
 }

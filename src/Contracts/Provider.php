@@ -3,7 +3,7 @@
 namespace TitasGailius\Calendar\Contracts;
 
 use TitasGailius\Calendar\Resources\Event;
-use TitasGailius\Calendar\Resources\EventFilters;
+use TitasGailius\Calendar\Resources\Filters;
 
 interface Provider
 {
@@ -21,14 +21,14 @@ interface Provider
      * @param  mixed[]  $options
      * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\EventCollection>
      */
-    public function getEvents(EventFilters $filters, array $options = []): Paginator;
+    public function getEvents(Filters $filters, array $options = []): Paginator;
 
     /**
      * Get event.
      *
      * @param  mixed[]  $options
      */
-    public function getEvent(EventFilters $filters, array $options = []): ?Event;
+    public function getEvent(Filters $filters, array $options = []): ?Event;
 
     /**
      * Create an event.
@@ -49,5 +49,5 @@ interface Provider
      *
      * @param  mixed[]  $options
      */
-    public function deleteEvent(EventFilters $filters, array $options = []): void;
+    public function deleteEvent(Filters $filters, array $options = []): void;
 }

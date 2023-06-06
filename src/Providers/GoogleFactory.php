@@ -18,7 +18,7 @@ use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\CalendarCollection;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\EventCollection;
-use TitasGailius\Calendar\Resources\EventFilters;
+use TitasGailius\Calendar\Resources\Filters;
 use TitasGailius\Calendar\Resources\GeneralPaginator;
 use TitasGailius\Calendar\Resources\Organiser;
 use TitasGailius\Calendar\Resources\Rsvp;
@@ -112,14 +112,9 @@ class GoogleFactory
     /**
      * Generate options from the given event filters.
      */
-    public static function fromFilters(EventFilters $filters)
+    public static function fromFilters(Filters $filters)
     {
-        return $filters->options([
-            'start' => fn (Carbon $start) => ['timeMax' => $filters->start->toRfc3339String()],
-            'end' => fn (Carbon $end) => ['timeMin' => $filters->end->toRfc3339String()],
-            'limit' => fn (int $limit) => ['maxResults' => $limit],
-            'search' => fn (string $search) => ['q' => $search],
-        ]);
+        return $filters;
     }
 
     /**

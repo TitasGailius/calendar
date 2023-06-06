@@ -6,21 +6,8 @@ use Carbon\Carbon;
 use ReflectionClass;
 use InvalidArgumentException;
 
-class EventFilters
+class Filters
 {
-    /**
-     * Parse the given filters.
-     */
-    public static function parse(string|Event|EventFilters|null $filters): EventFilters
-    {
-        return match (true) {
-            is_null($filters) => new EventFilters,
-            is_string($filters) => new EventFilters(id: $filters),
-            $filters instanceof Event => new EventFilters(id: $filters->id, calendar: $filters->calendar),
-            default => $filters,
-        };
-    }
-
     /**
      * Instantiate a new filters instance.
      */
@@ -36,6 +23,19 @@ class EventFilters
     ) {}
 
     /**
+     * Parse the given filters.
+     */
+    public static function parse(string|Event|Filters|null $filters): Filters
+    {
+        return match (true) {
+            is_null($filters) => new Filters,
+            is_string($filters) => new Filters(id: $filters),
+            $filters instanceof Event => new Filters(id: $filters->id, calendar: $filters->calendar),
+            default => $filters,
+        };
+    }
+
+    /**
      * Generate options for the current filters.
      *
      * @param  array<string, callable>  $generators
@@ -46,7 +46,7 @@ class EventFilters
 
         foreach ($generators as $key => $generator) {
             if (! property_exists($this, $key)) {
-                throw new InvalidArgumentException("Filters {$key} does not exist on the EventFilters instance.");
+                throw new InvalidArgumentException("Filters {$key} does not exist on the Filters instance.");
             }
 
             if (! $value = $this->{$key}) {

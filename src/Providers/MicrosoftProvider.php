@@ -11,7 +11,7 @@ use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Contracts\Provider;
 use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\Event;
-use TitasGailius\Calendar\Resources\EventFilters;
+use TitasGailius\Calendar\Resources\Filters;
 use TitasGailius\Calendar\Resources\GeneralCollectionPaginator;
 use TitasGailius\Calendar\Resources\Page;
 
@@ -47,7 +47,7 @@ class MicrosoftProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function getEvents(EventFilters $filters, array $options = []): Paginator
+    public function getEvents(Filters $filters, array $options = []): Paginator
     {
         $url = $filters->calendar === 'primary'
             ? '/me/events'.MicrosoftFactory::queryStringFromFilters($filters)
@@ -71,7 +71,7 @@ class MicrosoftProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function getEvent(EventFilters $filters, array $options = []): ?Event
+    public function getEvent(Filters $filters, array $options = []): ?Event
     {
         return $this->handleNotFound(fn () => MicrosoftFactory::toEvent(
             $this->graph
@@ -115,7 +115,7 @@ class MicrosoftProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function deleteEvent(EventFilters $filters, array $options = []): void
+    public function deleteEvent(Filters $filters, array $options = []): void
     {
         $this->graph
             ->createRequest('DELETE', MicrosoftFactory::toEventUrl($filters->id, $filters->calendar))

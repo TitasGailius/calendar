@@ -18,7 +18,7 @@ use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\CalendarCollection;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\EventCollection;
-use TitasGailius\Calendar\Resources\EventFilters;
+use TitasGailius\Calendar\Resources\Filters;
 use TitasGailius\Calendar\Resources\GeneralPaginator;
 use TitasGailius\Calendar\Resources\Organiser;
 use TitasGailius\Calendar\Resources\Rsvp;
@@ -181,7 +181,7 @@ class MicrosoftFactory
     /**
      * Query string from event filters.
      */
-    public static function queryStringFromFilters(EventFilters $filters): string
+    public static function queryStringFromFilters(Filters $filters): string
     {
         $query = [];
 

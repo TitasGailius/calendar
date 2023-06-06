@@ -14,7 +14,7 @@ use TitasGailius\Calendar\Resources\CalendarCollection;
 use TitasGailius\Calendar\Resources\CollectionPaginator;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\EventCollection;
-use TitasGailius\Calendar\Resources\EventFilters;
+use TitasGailius\Calendar\Resources\Filters;
 
 class GoogleProvider implements Provider
 {
@@ -36,7 +36,7 @@ class GoogleProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function getEvents(EventFilters $filters, array $options = []): Paginator
+    public function getEvents(Filters $filters, array $options = []): Paginator
     {
         return new GoogleEventPaginator($this->service, $filters, $options);
     }
@@ -56,7 +56,7 @@ class GoogleProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function getEvent(EventFilters $filters, array $options = []): ?Event
+    public function getEvent(Filters $filters, array $options = []): ?Event
     {
         return GoogleFactory::toEvent($this->handleNotFound(function () use ($filters, $options) {
             return $this->service->events->get($filters->calendar, $filters->id, $options);
@@ -81,7 +81,7 @@ class GoogleProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function deleteEvent(EventFilters $filters, array $options = []): void
+    public function deleteEvent(Filters $filters, array $options = []): void
     {
         $this->service->events->delete($filters->calendar, $filters->id, $options);
     }
