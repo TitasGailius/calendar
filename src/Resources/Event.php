@@ -18,10 +18,10 @@ class Event extends Resource
         public string $title,
         public DateTimeInterface $start,
         public DateTimeInterface $end,
-        public ?Organiser $organiser = null,
-        public array $attendees = [],
         public string $calendar = 'primary',
+        public array $attendees = [],
         public ?Recurrence $recurrence = null,
+        public ?Organiser $organiser = null,
         public ?string $id = null,
         public array $raw = [],
     ) {}
