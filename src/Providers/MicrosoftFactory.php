@@ -5,6 +5,7 @@ namespace TitasGailius\Calendar\Providers;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Exception;
+use InvalidArgumentException;
 use Microsoft\Graph\Http\GraphCollectionRequest;
 use Microsoft\Graph\Model\Attendee as MicrosoftAttendee;
 use Microsoft\Graph\Model\Calendar as MicrosoftCalendar;
@@ -47,6 +48,8 @@ class MicrosoftFactory
 
     /**
      * Convert to calendar instance.
+     *
+     * @return \TitasGailius\Calendar\Resources\Calendar<\Microsoft\Graph\Model\Calendar>
      */
     public static function toCalendar(MicrosoftCalendar $calendar): Calendar
     {
@@ -54,7 +57,7 @@ class MicrosoftFactory
             provider: 'microsoft',
             id: $calendar->getId(),
             name: $calendar->getName(),
-            raw: $calendar->getProperties(),
+            raw: $calendar,
         );
     }
 
@@ -70,17 +73,20 @@ class MicrosoftFactory
 
     /**
      * Convert to calendar instance.
+     *
+     * @return \TitasGailius\Calendar\Resources\Event<\Microsoft\Graph\Model\Event>
      */
     public static function toEvent(MicrosoftEvent $event): Event
     {
         return new Event(
+            provider: 'microsoft',
             title: $event->getSubject(),
             attendees: array_map([static::class, 'toAttendee'], $event->getAttendees()),
             start: Carbon::parse($event->getStart()->getDateTime()),
             end: Carbon::parse($event->getEnd()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmailAddress()->getAddress()),
             id: $event->getId(),
-            raw: $event->getProperties(),
+            raw: $event,
         );
     }
 

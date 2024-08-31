@@ -30,7 +30,9 @@ final class GoogleEventPaginator extends CollectionPaginator
     protected function nextPage(array $options): Page
     {
         return new Page(
-            raw: $page = $this->service->events->listEvents($this->filters->calendar, $this->options($options)),
+            raw: $page = $this->service->events->listEvents(
+                $this->filters->calendar, $this->options($options)
+            ),
             items: GoogleFactory::toEventCollection($page),
             hasNextPage: ! is_null($pageToken = $page->getNextPageToken()),
             nextPageOptions: compact('pageToken'),

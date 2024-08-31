@@ -2,7 +2,7 @@
 
 namespace TitasGailius\Calendar\Resources;
 
-use Carbon\Carbon;
+use DateTimeInterface;
 use ReflectionClass;
 use InvalidArgumentException;
 
@@ -12,9 +12,8 @@ class Filters
      * Instantiate a new filters instance.
      */
     public function __construct(
-        public readonly ?string $id = null,
-        public readonly ?Carbon $start = null,
-        public readonly ?Carbon $end = null,
+        public readonly ?DateTimeInterface $start = null,
+        public readonly ?DateTimeInterface $end = null,
         public readonly bool $expand = false,
         public readonly ?int $limit = null,
         public readonly ?string $search = null,
@@ -24,14 +23,9 @@ class Filters
     /**
      * Parse the given filters.
      */
-    public static function parse(string|Event|Filters|null $filters): Filters
+    public static function parse(Filters|null $filters): Filters
     {
-        return match (true) {
-            is_null($filters) => new Filters,
-            is_string($filters) => new Filters(id: $filters),
-            $filters instanceof Event => new Filters(id: $filters->id, calendar: $filters->calendar),
-            default => $filters,
-        };
+        return $filters ?? new Filters;
     }
 
     /**

@@ -35,6 +35,8 @@ class GoogleFactory
 
     /**
      * Instantiate a new calendar instance.
+     *
+     * @return \TitasGailius\Calendar\Resources\Calendar<\Google\Service\Calendar\CalendarListEntry>
      */
     public static function toCalendar(GoogleCalendarListEntry $calendar): Calendar
     {
@@ -42,7 +44,7 @@ class GoogleFactory
             provider: 'google',
             id: $calendar->getId(),
             name: $calendar->getSummary(),
-            raw: static::toArray($calendar),
+            raw: $calendar,
         );
     }
 
@@ -56,17 +58,20 @@ class GoogleFactory
 
     /**
      * Instantiate a new event instance.
+     *
+     * @return \TitasGailius\Calendar\Resources\Event<\Google\Service\Calendar\Event>
      */
     public static function toEvent(GoogleEvent $event): Event
     {
         return new Event(
+            provider: 'google',
             title: $event->getSummary(),
             attendees: array_map([static::class, 'toAttendee'], $event->getAttendees()),
             start: Carbon::parse($event->getStart()->getDateTime()),
             end: Carbon::parse($event->getEnd()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmail()),
             id: $event->getId(),
-            raw: static::toArray($event),
+            raw: $event,
         );
     }
 

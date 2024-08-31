@@ -15,6 +15,7 @@ use TitasGailius\Calendar\Resources\CollectionPaginator;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\EventCollection;
 use TitasGailius\Calendar\Resources\Filters;
+use TitasGailius\Calendar\Resources\Selector;
 
 class GoogleProvider implements Provider
 {
@@ -56,10 +57,10 @@ class GoogleProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function getEvent(Filters $filters, array $options = []): ?Event
+    public function getEvent(Selector $selector, array $options = []): ?Event
     {
-        return GoogleFactory::toEvent($this->handleNotFound(function () use ($filters, $options) {
-            return $this->service->events->get($filters->calendar, $filters->id, $options);
+        return GoogleFactory::toEvent($this->handleNotFound(function () use ($selector, $options) {
+            return $this->service->events->get($selector->calendar, $selector->id, $options);
         }));
     }
 
@@ -81,9 +82,9 @@ class GoogleProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function deleteEvent(Filters $filters, array $options = []): void
+    public function deleteEvent(Selector $selector, array $options = []): void
     {
-        $this->service->events->delete($filters->calendar, $filters->id, $options);
+        $this->service->events->delete($selector->calendar, $selector->id, $options);
     }
 
     /**

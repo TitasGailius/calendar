@@ -14,6 +14,7 @@ use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\Filters;
 use TitasGailius\Calendar\Resources\GeneralCollectionPaginator;
 use TitasGailius\Calendar\Resources\Page;
+use TitasGailius\Calendar\Resources\Selector;
 
 class MicrosoftProvider implements Provider
 {
@@ -75,11 +76,11 @@ class MicrosoftProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function getEvent(Filters $filters, array $options = []): ?Event
+    public function getEvent(Selector $selector, array $options = []): ?Event
     {
         return $this->handleNotFound(fn () => MicrosoftFactory::toEvent(
             $this->graph
-                ->createRequest('GET', MicrosoftFactory::toEventUrl($filters->id, $filters->calendar))
+                ->createRequest('GET', MicrosoftFactory::toEventUrl($selector->id, $selector->calendar))
                 ->setReturnType(MicrosoftEvent::class)
                 ->execute()
         ));
@@ -119,10 +120,10 @@ class MicrosoftProvider implements Provider
     /**
      * {@inheritdoc}
      */
-    public function deleteEvent(Filters $filters, array $options = []): void
+    public function deleteEvent(Selector $selector, array $options = []): void
     {
         $this->graph
-            ->createRequest('DELETE', MicrosoftFactory::toEventUrl($filters->id, $filters->calendar))
+            ->createRequest('DELETE', MicrosoftFactory::toEventUrl($selector->id, $selector->calendar))
             ->execute();
     }
 

@@ -7,6 +7,7 @@ use TitasGailius\Calendar\Contracts\Provider;
 use TitasGailius\Calendar\Contracts\Repository as RepositoryContract;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\Filters;
+use TitasGailius\Calendar\Resources\Selector;
 
 final class Repository implements RepositoryContract
 {
@@ -48,9 +49,9 @@ final class Repository implements RepositoryContract
     /**
      * {@inheritdoc}
      */
-    public function getEvent(string|Event|Filters|null $filters = null): ?Event
+    public function getEvent(string|Event|Selector|null $selector = null): ?Event
     {
-        return $this->provider->getEvent(Filters::parse($filters), $this->options);
+        return $this->provider->getEvent(Selector::parse($selector), $this->options);
     }
 
     /**
@@ -64,9 +65,9 @@ final class Repository implements RepositoryContract
     /**
      * {@inheritdoc}
      */
-    public function deleteEvent(string|Event|Filters|null $filters = null): void
+    public function deleteEvent(string|Event|Selector|null $selector = null): void
     {
-        $this->provider->deleteEvent(Filters::parse($filters), $this->options);
+        $this->provider->deleteEvent(Selector::parse($selector), $this->options);
     }
 
     /**

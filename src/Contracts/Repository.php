@@ -5,6 +5,7 @@ namespace TitasGailius\Calendar\Contracts;
 use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\Filters;
+use TitasGailius\Calendar\Resources\Selector;
 
 interface Repository
 {
@@ -25,7 +26,7 @@ interface Repository
     /**
      * Get event.
      */
-    public function getEvent(string|Event|Filters|null $filters = null): ?Event;
+    public function getEvent(string|Event|Selector|null $selector = null): ?Event;
 
     /**
      * Create an event.
@@ -40,7 +41,7 @@ interface Repository
     /**
      * Delete a given event.
      */
-    public function deleteEvent(string|Event|Filters|null $filters = null): void;
+    public function deleteEvent(string|Event|Selector|null $selector = null): void;
 
     /**
      * Set custom options for the current request.
