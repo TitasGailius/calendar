@@ -17,7 +17,7 @@
         "php": "^8.0",
         "google/apiclient": "^2.12.1",
         "microsoft/microsoft-graph": "^1.92",
-        "nesbot/carbon": "^2.66",
+        "nesbot/carbon": "^3.0",
         "rlanvin/php-rrule": "^2.4"
     },
     "require-dev": {
