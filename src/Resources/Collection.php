@@ -91,7 +91,7 @@ abstract class Collection implements ArrayAccess, Countable, IteratorAggregate, 
      *
      * @return TValue[]
      */
-    public function all(): array
+    public function toArray(): array
     {
         return $this->items;
     }
