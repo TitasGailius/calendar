@@ -6,26 +6,30 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use Exception;
 use InvalidArgumentException;
-use Microsoft\Graph\Http\GraphCollectionRequest;
 use Microsoft\Graph\Model\Attendee as MicrosoftAttendee;
 use Microsoft\Graph\Model\Calendar as MicrosoftCalendar;
 use Microsoft\Graph\Model\DateTimeTimeZone as MicrosoftDateTimeTimeZone;
 use Microsoft\Graph\Model\EmailAddress as MicrosoftEmailAddress;
 use Microsoft\Graph\Model\Event as MicrosoftEvent;
 use Microsoft\Graph\Model\Recipient as MicrosoftRecipient;
-use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Resources\Attendee;
 use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\CalendarCollection;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\EventCollection;
 use TitasGailius\Calendar\Resources\Filters;
-use TitasGailius\Calendar\Resources\GeneralPaginator;
 use TitasGailius\Calendar\Resources\Organiser;
 use TitasGailius\Calendar\Resources\Rsvp;
 
 class MicrosoftFactory
 {
+    /**
+     * Guid used as a namsepace for event metadata.
+     *
+     * @var string
+     */
+    public static string $guid;
+
     /**
      * Make a URL that points to the given event.
      */
@@ -78,14 +82,15 @@ class MicrosoftFactory
      */
     public static function toEvent(MicrosoftEvent $event): Event
     {
-        return new Event(
-            provider: 'microsoft',
+        return (new Event(
             title: $event->getSubject(),
             attendees: array_map([static::class, 'toAttendee'], $event->getAttendees()),
             start: Carbon::parse($event->getStart()->getDateTime()),
             end: Carbon::parse($event->getEnd()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmailAddress()->getAddress()),
+        ))->existing(
             id: $event->getId(),
+            provider: 'microsoft',
             raw: $event,
         );
     }
@@ -128,10 +133,32 @@ class MicrosoftFactory
             $new->setId($event->id);
         }
 
+        if (!empty($event->metadata)) {
+            $new->setSingleValueExtendedProperties(static::fromMetadata($event->metadata));
+        }
+
         return $new
             ->setAttendees(static::fromAttendeesArray($event->attendees))
             ->setStart(static::fromDate($event->start))
             ->setEnd(static::fromDate($event->end));
+    }
+
+    /**
+     * Format event's metadata.
+     *
+     * @param  array<string, string>  $metadata
+     * @return array<int, array{id: string, value: string}>
+     */
+    public static function fromMetadata(array $metadata): array
+    {
+        if (!isset(static::$guid)) {
+            throw new Exception('You need to set GUID in order to store custom event data.');
+        }
+
+        return array_map(fn (string $value, string $key) => [
+            'id' => sprintf('String %s Name %s', static::$guid, $key),
+            'value' => $value,
+        ], $metadata, array_keys($metadata));
     }
 
     /**

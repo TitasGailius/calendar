@@ -21,9 +21,10 @@ class MicrosoftProvider implements Provider
     /**
      * Instantiate a new provider instance.
      */
-    public function __construct(
-        protected readonly Graph $graph,
-    ) {}
+    public function __construct(protected Graph $graph)
+    {
+        //
+    }
 
     /**
      * {@inheritdoc}

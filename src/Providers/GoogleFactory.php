@@ -63,14 +63,15 @@ class GoogleFactory
      */
     public static function toEvent(GoogleEvent $event): Event
     {
-        return new Event(
-            provider: 'google',
+        return (new Event(
             title: $event->getSummary(),
             attendees: array_map([static::class, 'toAttendee'], $event->getAttendees()),
             start: Carbon::parse($event->getStart()->getDateTime()),
             end: Carbon::parse($event->getEnd()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmail()),
+        ))->existing(
             id: $event->getId(),
+            provider: 'google',
             raw: $event,
         );
     }
@@ -111,6 +112,9 @@ class GoogleFactory
                     default => 'needsAction',
                 },
             ], $event->attendees),
+            'extendedProperties' => [
+                'private' => $event->metadata ?? [],
+            ],
         ]);
     }
 

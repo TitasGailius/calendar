@@ -48,8 +48,8 @@ final class GoogleEventPaginator extends CollectionPaginator
     protected function options(array $options): array
     {
         return array_merge($this->options, $options, $this->filters->options([
-            'start' => fn (DateTimeInterface $start) => ['timeMax' => Carbon::parse($start)->toRfc3339String()],
-            'end' => fn (DateTimeInterface $end) => ['timeMin' => Carbon::parse($end)->toRfc3339String()],
+            'start' => fn (DateTimeInterface $start) => ['timeMin' => Carbon::parse($start)->toRfc3339String()],
+            'end' => fn (DateTimeInterface $end) => ['timeMax' => Carbon::parse($end)->toRfc3339String()],
             'limit' => fn (int $limit) => ['maxResults' => $limit],
             'search' => fn (string $search) => ['q' => $search],
             'expand' => fn (bool $expand) => ['singleEvents' => $expand],

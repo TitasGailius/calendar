@@ -3,7 +3,6 @@
 namespace TitasGailius\Calendar\Resources;
 
 use DateTimeInterface;
-use TitasGailius\Calendar\Resources\Attendee;
 use TitasGailius\Calendar\Resources\Recurrence;
 
 /**
@@ -11,6 +10,21 @@ use TitasGailius\Calendar\Resources\Recurrence;
  */
 class Event extends Resource
 {
+    /**
+     * Event's id.
+     */
+    public string $id;
+
+    /**
+     * Event's provider.
+     */
+    public string $provider;
+
+    /**
+     * Raw data.
+     */
+    public mixed $raw;
+
     /**
      * Instantiate a new event instance.
      *
@@ -25,18 +39,20 @@ class Event extends Resource
         public array $attendees = [],
         public ?Recurrence $recurrence = null,
         public ?Organiser $organiser = null,
-        public ?string $id = null,
-        public ?string $provider = null,
-        protected mixed $raw = null,
+        public array $metadata = [],
     ) {}
 
     /**
-     * Get raw event data.
+     * Indicate that the event is existing.
      *
-     * @return TValue
+     * @return $this
      */
-    public function getRaw(): mixed
+    public function existing(string $id, string $provider, mixed $raw): static
     {
-        return $this->raw;
+        $this->id = $id;
+        $this->provider = $provider;
+        $this->raw = $raw;
+
+        return $this;
     }
 }
