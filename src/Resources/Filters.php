@@ -10,6 +10,8 @@ class Filters
 {
     /**
      * Instantiate a new filters instance.
+     *
+     * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
         public readonly ?DateTimeInterface $start = null,
@@ -17,6 +19,7 @@ class Filters
         public readonly bool $expand = false,
         public readonly ?int $limit = null,
         public readonly ?string $search = null,
+        public readonly ?array $metadata = null,
         public readonly string $calendar = 'primary',
     ) {}
 

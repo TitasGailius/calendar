@@ -53,7 +53,25 @@ final class GoogleEventPaginator extends CollectionPaginator
             'limit' => fn (int $limit) => ['maxResults' => $limit],
             'search' => fn (string $search) => ['q' => $search],
             'expand' => fn (bool $expand) => ['singleEvents' => $expand],
+            'metadata' => $this->toMetadataFilterProperties(...),
         ]));
+    }
+
+    /**
+     * Convert the given metadata to filter properties.
+     *
+     * @param  array<string, mixed>  $metadata
+     * @return array<int, string>|string
+     */
+    protected function toMetadataFilterProperties(array $metadata): array|string
+    {
+        $result = [];
+
+        foreach ($metadata as $key => $value) {
+            $result[] = $key.'='.$value;
+        }
+
+        return ['privateExtendedProperty' => count($result) === 1 ? $result[0] : $result];
     }
 
     /**
