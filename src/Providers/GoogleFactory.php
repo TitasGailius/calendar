@@ -87,6 +87,7 @@ class GoogleFactory
     {
         return new Attendee(
             email: $attendee->getEmail(),
+            name: $attendee->getDisplayName(),
             rsvp: match ($attendee->getResponseStatus()) {
                 'needsAction' => Rsvp::PENDING,
                 'declined' => Rsvp::DECLINED,

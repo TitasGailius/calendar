@@ -104,6 +104,7 @@ class MicrosoftFactory
     {
         return new Attendee(
             email: $attendee['emailAddress']['address'],
+            name: $attendee['emailAddress']['name'] ?? null,
             rsvp: match ($attendee['status']['response']) {
                 'none' => Rsvp::PENDING,
                 'organizer' => Rsvp::ACCEPTED,
