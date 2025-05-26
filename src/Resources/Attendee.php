@@ -9,7 +9,7 @@ class Attendee extends Resource
      */
     public function __construct(
         public string $email,
-        public ?string $name,
+        public ?string $name = null,
         public ?Rsvp $rsvp = null,
     ) {}
 }
