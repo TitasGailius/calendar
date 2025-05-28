@@ -5,9 +5,6 @@ namespace TitasGailius\Calendar\Resources;
 use DateTimeInterface;
 use TitasGailius\Calendar\Resources\Recurrence;
 
-/**
- * @template TValue
- */
 class Event extends Resource
 {
     /**
@@ -29,7 +26,6 @@ class Event extends Resource
      * Instantiate a new event instance.
      *
      * @param  \TitasGailius\Calendar\Resources\Attendee[]|string[]  $attendees
-     * @param  TValue  $raw
      */
     public function __construct(
         public string $title,
