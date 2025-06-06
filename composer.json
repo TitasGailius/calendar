@@ -45,7 +45,8 @@
         ]
     },
     "scripts": {
-        "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+        "pre-autoload-dump": "Google\\Task\\Composer::cleanup",
+        "test": "./vendor/bin/phpunit"
     },
     "minimum-stability": "dev",
     "prefer-stable": true
