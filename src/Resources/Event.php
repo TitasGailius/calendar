@@ -26,7 +26,7 @@ class Event extends Resource
      * Instantiate a new event instance.
      *
      * @param  \TitasGailius\Calendar\Resources\Attendee[]|string[]  $attendees
-     * @param  array<int, string|null>  $metadata
+     * @param  array<string, string|null>  $metadata
      */
     public function __construct(
         public string $title,
