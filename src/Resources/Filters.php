@@ -6,7 +6,7 @@ use DateTimeInterface;
 use ReflectionClass;
 use InvalidArgumentException;
 
-class Filters
+readonly class Filters
 {
     /**
      * Instantiate a new filters instance.
@@ -14,29 +14,21 @@ class Filters
      * @param  array<string, mixed>|null  $metadata
      */
     public function __construct(
-        public readonly ?DateTimeInterface $start = null,
-        public readonly ?DateTimeInterface $end = null,
-        public readonly bool $expand = false,
-        public readonly ?int $limit = null,
-        public readonly ?string $search = null,
-        public readonly ?array $metadata = null,
-        public readonly string $calendar = 'primary',
+        public ?DateTimeInterface $start = null,
+        public ?DateTimeInterface $end = null,
+        public bool $expand = false,
+        public ?int $limit = null,
+        public ?string $search = null,
+        public ?array $metadata = null,
+        public string $calendar = 'primary',
     ) {}
 
     /**
-     * Parse the given filters.
-     */
-    public static function parse(Filters|null $filters): Filters
-    {
-        return $filters ?? new Filters;
-    }
-
-    /**
-     * Generate options for the current filters.
+     * Apply options for the current filters.
      *
-     * @param  array<string, callable>  $generators
+     * @param  array<string, callable(string): string>  $generators
      */
-    public function options(array $generators): array
+    public function toRequestOptions(array $generators): array
     {
         $result = [];
 

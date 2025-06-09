@@ -2,12 +2,15 @@
 
 namespace TitasGailius\Calendar;
 
+use DateTimeInterface;
 use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Contracts\Provider;
 use TitasGailius\Calendar\Contracts\Repository as RepositoryContract;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\Filters;
-use TitasGailius\Calendar\Resources\Selector;
+use TitasGailius\Calendar\Resources\Organiser;
+use TitasGailius\Calendar\Resources\PartialEvent;
+use TitasGailius\Calendar\Resources\Recurrence;
 
 final class Repository implements RepositoryContract
 {
@@ -33,9 +36,16 @@ final class Repository implements RepositoryContract
     /**
      * {@inheritdoc}
      */
-    public function getEvents(?Filters $filters = null): Paginator
-    {
-        return $this->provider->getEvents($filters ?? new Filters, $this->options);
+    public function getEvents(
+        ?DateTimeInterface $start = null,
+        ?DateTimeInterface $end = null,
+        bool $expand = false,
+        ?int $limit = null,
+        ?string $search = null,
+        ?array $metadata = null,
+        ?string $calendar = 'primary',
+    ): Paginator {
+        return $this->provider->getEvents(new Filters(...func_get_args()), $this->options);
     }
 
     /**
@@ -49,25 +59,34 @@ final class Repository implements RepositoryContract
     /**
      * {@inheritdoc}
      */
-    public function getEvent(string|Event|Selector|null $selector = null): ?Event
+    public function getEvent(string|Event $id, string $calendar = 'primary'): ?Event
     {
-        return $this->provider->getEvent(Selector::parse($selector), $this->options);
+        return $this->provider->getEvent(self::id($id), $calendar, $this->options);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function updateEvent(Event $event): Event
-    {
-        return $this->provider->updateEvent($event, $this->options);
+    public function updateEvent(
+        Event|string $id,
+        string $calendar = 'primary',
+        ?string $title = null,
+        ?DateTimeInterface $start = null,
+        ?DateTimeInterface $end = null,
+        array $attendees = [],
+        ?Recurrence $recurrence = null,
+        ?Organiser $organiser = null,
+        array $metadata = [],
+    ): Event {
+        return $this->provider->updateEvent(new PartialEvent(...func_get_args(), id: self::id($id)));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function deleteEvent(string|Event|Selector|null $selector = null): void
+    public function deleteEvent(string|Event $id, string $calendar = 'primary'): void
     {
-        $this->provider->deleteEvent(Selector::parse($selector), $this->options);
+        $this->provider->deleteEvent(self::id($id), $calendar, $this->options);
     }
 
     /**
@@ -75,7 +94,7 @@ final class Repository implements RepositoryContract
      */
     public function with(array $options = []): static
     {
-        return new static($this->name, $this->provider, $this->options);
+        return new self($this->name, $this->provider, $this->options);
     }
 
     /**
@@ -111,5 +130,13 @@ final class Repository implements RepositoryContract
     protected function options(array $options = []): array
     {
         return array_merge($this->options, $options);
+    }
+
+    /**
+     * Get id.
+     */
+    protected static function id(Event|string $id): string
+    {
+        return $id instanceof Event ? $id->id : $id;
     }
 }

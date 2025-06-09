@@ -2,7 +2,7 @@
 
 namespace TitasGailius\Calendar\Resources;
 
-class Attendee extends Resource
+readonly class Attendee
 {
     /**
      * Instantiate a new attendee instance.

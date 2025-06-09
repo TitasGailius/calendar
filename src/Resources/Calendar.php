@@ -2,29 +2,27 @@
 
 namespace TitasGailius\Calendar\Resources;
 
-use DateTimeInterface;
-
 /**
- * @template TValue
+ * @template TRaw
  */
-class Calendar extends Resource
+readonly class Calendar
 {
     /**
      * Instantiate a new calendar instance.
      *
-     * @param  TValue $raw
+     * @param  TRaw  $raw
      */
     public function __construct(
-        public readonly string $provider,
-        public readonly string $id,
-        public readonly string $name,
-        protected readonly mixed $raw = null,
+        public string $provider,
+        public string $id,
+        public string $name,
+        protected mixed $raw = null,
     ) {}
 
     /**
      * Get raw event data.
      *
-     * @return TValue
+     * @return TRaw
      */
     public function getRaw(): mixed
     {

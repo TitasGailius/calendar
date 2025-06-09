@@ -3,10 +3,16 @@
 namespace TitasGailius\Calendar\Resources;
 
 use DateTimeInterface;
+use TitasGailius\Calendar\Contracts\Repository;
 use TitasGailius\Calendar\Resources\Recurrence;
 
-class Event extends Resource
+readonly class Event
 {
+    /**
+     * Repository that retrieved the event.
+     */
+    protected Repository $repository;
+
     /**
      * Event's id.
      */
@@ -26,16 +32,17 @@ class Event extends Resource
      * Instantiate a new event instance.
      *
      * @param  \TitasGailius\Calendar\Resources\Attendee[]|string[]  $attendees
+     * @param  array<string, string>  $metadata
      */
     public function __construct(
         public string $title,
         public DateTimeInterface $start,
         public DateTimeInterface $end,
-        public string $calendar = 'primary',
         public array $attendees = [],
+        public Organiser|string $organiser,
         public ?Recurrence $recurrence = null,
-        public ?Organiser $organiser = null,
         public array $metadata = [],
+        public string $calendar = 'primary',
     ) {}
 
     /**
@@ -43,11 +50,12 @@ class Event extends Resource
      *
      * @return $this
      */
-    public function existing(string $id, string $provider, mixed $raw): static
+    public function existing(Repository $repository, string $id, mixed $raw): static
     {
+        $this->repository = $repository;
         $this->id = $id;
-        $this->provider = $provider;
         $this->raw = $raw;
+        $this->provider = $repository->getName();
 
         return $this;
     }

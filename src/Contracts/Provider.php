@@ -4,7 +4,7 @@ namespace TitasGailius\Calendar\Contracts;
 
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\Filters;
-use TitasGailius\Calendar\Resources\Selector;
+use TitasGailius\Calendar\Resources\PartialEvent;
 
 interface Provider
 {
@@ -29,7 +29,7 @@ interface Provider
      *
      * @param  mixed[]  $options
      */
-    public function getEvent(Selector $selector, array $options = []): ?Event;
+    public function getEvent(string $id, string $calendar, array $options = []): ?Event;
 
     /**
      * Create an event.
@@ -43,12 +43,12 @@ interface Provider
      *
      * @param  mixed[]  $options
      */
-    public function updateEvent(Event $event, array $options = []): Event;
+    public function updateEvent(PartialEvent $event, array $options = []): Event;
 
     /**
      * Delete a given event.
      *
      * @param  mixed[]  $options
      */
-    public function deleteEvent(Selector $selector, array $options = []): void;
+    public function deleteEvent(string $id, string $calendar, array $options = []): void;
 }

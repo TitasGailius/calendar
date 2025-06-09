@@ -2,10 +2,10 @@
 
 namespace TitasGailius\Calendar\Contracts;
 
-use TitasGailius\Calendar\Contracts\Paginator;
+use DateTimeInterface;
 use TitasGailius\Calendar\Resources\Event;
-use TitasGailius\Calendar\Resources\Filters;
-use TitasGailius\Calendar\Resources\Selector;
+use TitasGailius\Calendar\Resources\Organiser;
+use TitasGailius\Calendar\Resources\Recurrence;
 
 interface Repository
 {
@@ -21,12 +21,20 @@ interface Repository
      *
      * @return \TitasGailius\Calendar\Contracts\Paginator<\TitasGailius\Calendar\Resources\EventCollection>
      */
-    public function getEvents(?Filters $filters = null): Paginator;
+    public function getEvents(
+        ?DateTimeInterface $start = null,
+        ?DateTimeInterface $end = null,
+        bool $expand = false,
+        ?int $limit = null,
+        ?string $search = null,
+        ?array $metadata = null,
+        ?string $calendar = 'primary',
+    ): Paginator;
 
     /**
      * Get event.
      */
-    public function getEvent(string|Event|Selector|null $selector = null): ?Event;
+    public function getEvent(string|Event $id, string $calendar = 'primary'): ?Event;
 
     /**
      * Create an event.
@@ -36,12 +44,22 @@ interface Repository
     /**
      * Save a new event.
      */
-    public function updateEvent(Event $event): Event;
+    public function updateEvent(
+        Event|string $event,
+        string $calendar = 'primary',
+        ?string $title = null,
+        ?DateTimeInterface $start = null,
+        ?DateTimeInterface $end = null,
+        array $attendees = [],
+        ?Recurrence $recurrence = null,
+        ?Organiser $organiser = null,
+        array $metadata = [],
+    ): Event;
 
     /**
      * Delete a given event.
      */
-    public function deleteEvent(string|Event|Selector|null $selector = null): void;
+    public function deleteEvent(string|Event $selector): void;
 
     /**
      * Set custom options for the current request.
