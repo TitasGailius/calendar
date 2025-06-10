@@ -71,8 +71,8 @@ class GoogleFactory
             end: Carbon::parse($event->getEnd()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmail()),
             metadata: array_merge(
-                $event->getExtendedProperties()->getPrivate(),
-                $event->getExtendedProperties()->getShared(),
+                $event->getExtendedProperties()?->getPrivate() ?? [],
+                $event->getExtendedProperties()?->getShared() ?? [],
             ),
         ))->existing(
             id: $event->getId(),
