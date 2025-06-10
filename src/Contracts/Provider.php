@@ -2,12 +2,22 @@
 
 namespace TitasGailius\Calendar\Contracts;
 
+use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\Filters;
 use TitasGailius\Calendar\Resources\Selector;
 
 interface Provider
 {
+    /**
+     * Get the specific calendar.
+     *
+     * @param  string  $calendar
+     * @param  array<string, mixed>  $options
+     * @return \TitasGailius\Calendar\Resources\Calendar
+     */
+    public function getCalendar(string $calendar, array $options = []): Calendar;
+
     /**
      * List calendars.
      *

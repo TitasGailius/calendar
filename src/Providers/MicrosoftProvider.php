@@ -4,7 +4,6 @@ namespace TitasGailius\Calendar\Providers;
 
 use GuzzleHttp\Exception\ClientException;
 use Microsoft\Graph\Graph;
-use Microsoft\Graph\Http\GraphCollectionRequest;
 use Microsoft\Graph\Model\Calendar as MicrosoftCalendar;
 use Microsoft\Graph\Model\Event as MicrosoftEvent;
 use TitasGailius\Calendar\Contracts\Paginator;
@@ -24,6 +23,24 @@ class MicrosoftProvider implements Provider
     public function __construct(protected Graph $graph)
     {
         //
+    }
+
+    /**
+     * Get the specific calendar.
+     *
+     * @param  string  $calendar
+     * @param  array<string, mixed>  $options
+     * @return \TitasGailius\Calendar\Resources\Calendar
+     */
+    public function getCalendar(string $calendar, array $options = []): Calendar
+    {
+        return new Calendar(
+            provider: 'microsoft',
+            id: $calendar,
+            name: 'Placeholder',
+            timeZone: 'Europe/Paris',
+            raw: null,
+        );
     }
 
     /**

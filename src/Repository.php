@@ -5,6 +5,7 @@ namespace TitasGailius\Calendar;
 use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Contracts\Provider;
 use TitasGailius\Calendar\Contracts\Repository as RepositoryContract;
+use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\Filters;
 use TitasGailius\Calendar\Resources\Selector;
@@ -21,6 +22,14 @@ final class Repository implements RepositoryContract
         protected readonly Provider $provider,
         protected readonly array $options = [],
     ) {}
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCalendar(string $calendar = 'primary'): Calendar
+    {
+        return $this->provider->getCalendar($calendar, $this->options);
+    }
 
     /**
      * {@inheritdoc}

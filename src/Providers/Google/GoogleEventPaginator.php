@@ -61,9 +61,9 @@ final class GoogleEventPaginator extends CollectionPaginator
      * Convert the given metadata to filter properties.
      *
      * @param  array<string, mixed>  $metadata
-     * @return array<int, string>|string
+     * @return array{privateExtendedProperty: array<string>|string}
      */
-    protected function toMetadataFilterProperties(array $metadata): array|string
+    protected function toMetadataFilterProperties(array $metadata): array
     {
         $result = [];
 

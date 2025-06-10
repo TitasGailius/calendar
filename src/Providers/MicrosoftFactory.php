@@ -12,6 +12,7 @@ use Microsoft\Graph\Model\DateTimeTimeZone as MicrosoftDateTimeTimeZone;
 use Microsoft\Graph\Model\EmailAddress as MicrosoftEmailAddress;
 use Microsoft\Graph\Model\Event as MicrosoftEvent;
 use Microsoft\Graph\Model\Recipient as MicrosoftRecipient;
+use Microsoft\Graph\Model\SingleValueLegacyExtendedProperty;
 use TitasGailius\Calendar\Resources\Attendee;
 use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\CalendarCollection;
@@ -61,6 +62,7 @@ class MicrosoftFactory
             provider: 'microsoft',
             id: $calendar->getId(),
             name: $calendar->getName(),
+            timeZone: 'Europe/Parins',
             raw: $calendar,
         );
     }
@@ -78,7 +80,7 @@ class MicrosoftFactory
     /**
      * Convert to calendar instance.
      *
-     * @return \TitasGailius\Calendar\Resources\Event<\Microsoft\Graph\Model\Event>
+     * @return \TitasGailius\Calendar\Resources\Event
      */
     public static function toEvent(MicrosoftEvent $event): Event
     {
@@ -148,7 +150,7 @@ class MicrosoftFactory
      * Format event's metadata.
      *
      * @param  array<string, string>  $metadata
-     * @return array<int, array{id: string, value: string}>
+     * @return array<int, \Microsoft\Graph\Model\SingleValueLegacyExtendedProperty>
      */
     public static function fromMetadata(array $metadata): array
     {
@@ -156,10 +158,10 @@ class MicrosoftFactory
             throw new Exception('You need to set GUID in order to store custom event data.');
         }
 
-        return array_map(fn (string $value, string $key) => [
+        return array_map(fn (string $value, string $key) => new SingleValueLegacyExtendedProperty([
             'id' => sprintf('String %s Name %s', static::$guid, $key),
             'value' => $value,
-        ], $metadata, array_keys($metadata));
+        ]), $metadata, array_keys($metadata));
     }
 
     /**

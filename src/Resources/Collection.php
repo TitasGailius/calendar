@@ -70,7 +70,7 @@ abstract class Collection implements ArrayAccess, Countable, IteratorAggregate, 
     public function merge(Collection|array $items): static
     {
         if ($items instanceof Collection) {
-            $items = $items->all();
+            $items = $items->toArray();
         }
 
         return new static(array_merge($this->items, $items));
@@ -166,6 +166,6 @@ abstract class Collection implements ArrayAccess, Countable, IteratorAggregate, 
      */
     public function jsonSerialize(): array
     {
-        return $this->all();
+        return $this->toArray();
     }
 }

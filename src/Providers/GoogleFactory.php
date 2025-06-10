@@ -44,6 +44,7 @@ class GoogleFactory
             provider: 'google',
             id: $calendar->getId(),
             name: $calendar->getSummary(),
+            timeZone: $calendar->getTimeZone(),
             raw: $calendar,
         );
     }
@@ -59,7 +60,7 @@ class GoogleFactory
     /**
      * Instantiate a new event instance.
      *
-     * @return \TitasGailius\Calendar\Resources\Event<\Google\Service\Calendar\Event>
+     * @return \TitasGailius\Calendar\Resources\Event
      */
     public static function toEvent(GoogleEvent $event): Event
     {
@@ -70,8 +71,8 @@ class GoogleFactory
             end: Carbon::parse($event->getEnd()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmail()),
             metadata: array_merge(
-                $event->getExtendedProperties()?->getPrivate() ?? [],
-                $event->getExtendedProperties()?->getShared() ?? [],
+                $event->getExtendedProperties()->getPrivate(),
+                $event->getExtendedProperties()->getShared(),
             ),
         ))->existing(
             id: $event->getId(),

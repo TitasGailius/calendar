@@ -27,6 +27,18 @@ class GoogleProvider implements Provider
     ) {}
 
     /**
+     * Get the specific calendar.
+     *
+     * @param  string  $calendar
+     * @param  array<string, mixed>  $options
+     * @return \TitasGailius\Calendar\Resources\Calendar
+     */
+    public function getCalendar(string $calendar, array $options = []): Calendar
+    {
+        return GoogleFactory::toCalendar($this->service->calendarList->get($calendar, $options));
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getCalendars(array $options = []): Paginator
