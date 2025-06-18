@@ -132,7 +132,7 @@ class MicrosoftFactory
             $new->setOrganizer(static::fromOrganiser($event->organiser));
         }
 
-        if ($event->id) {
+        if (isset($event->id)) {
             $new->setId($event->id);
         }
 
