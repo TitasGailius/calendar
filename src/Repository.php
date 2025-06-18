@@ -61,7 +61,7 @@ final class Repository implements RepositoryContract
      */
     public function getEvent(string|Event $id, string $calendar = 'primary'): ?Event
     {
-        return $this->provider->getEvent(self::id($id), $calendar, $this->options);
+        return $this->provider->getEvent(static::id($id), $calendar, $this->options);
     }
 
     /**
@@ -78,7 +78,7 @@ final class Repository implements RepositoryContract
         ?Organiser $organiser = null,
         array $metadata = [],
     ): Event {
-        return $this->provider->updateEvent(new PartialEvent(...func_get_args(), id: self::id($id)));
+        return $this->provider->updateEvent(new PartialEvent(...func_get_args(), id: static::id($id)));
     }
 
     /**
@@ -86,7 +86,7 @@ final class Repository implements RepositoryContract
      */
     public function deleteEvent(string|Event $id, string $calendar = 'primary'): void
     {
-        $this->provider->deleteEvent(self::id($id), $calendar, $this->options);
+        $this->provider->deleteEvent(static::id($id), $calendar, $this->options);
     }
 
     /**
