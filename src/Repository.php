@@ -84,7 +84,7 @@ final class Repository implements RepositoryContract
      */
     public function with(array $options = []): static
     {
-        return new static($this->name, $this->provider, $this->options);
+        return new static($this->name, $this->provider, array_merge($this->options, $options));
     }
 
     /**
@@ -109,16 +109,5 @@ final class Repository implements RepositoryContract
     public function getName(): string
     {
         return $this->name;
-    }
-
-    /**
-     * Merge options.
-     *
-     * @param  mixed[]  $options
-     * @return mixed[]
-     */
-    protected function options(array $options = []): array
-    {
-        return array_merge($this->options, $options);
     }
 }

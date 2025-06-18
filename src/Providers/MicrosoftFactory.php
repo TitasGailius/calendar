@@ -34,11 +34,11 @@ class MicrosoftFactory
     /**
      * Make a URL that points to the given event.
      */
-    public static function toEventUrl(string $id, string $calendar): string
+    public static function toEventUrl(string $id, string $calendar, array $options): string
     {
         return $calendar === 'primary'
-            ? '/me/events/'.$id
-            : '/me/calendars/'.$calendar.'/events/'.$id;
+            ? '/me/events/'.$id.'?'.http_build_query($options)
+            : '/me/calendars/'.$calendar.'/events/'.$id.'?'.http_build_query($options);
     }
 
     /**
@@ -90,11 +90,29 @@ class MicrosoftFactory
             start: Carbon::parse($event->getStart()->getDateTime()),
             end: Carbon::parse($event->getEnd()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmailAddress()->getAddress()),
+            metadata: static::toMetadata($event->getSingleValueExtendedProperties() ?? []),
         ))->existing(
             id: $event->getId(),
             provider: 'microsoft',
             raw: $event,
         );
+    }
+
+    /**
+     * Parse event's metadata.
+     *
+     * @param array<int, array{id: string, value: string}>  $props
+     * @return array<string, string>
+     */
+    public static function toMetadata(array $props): array
+    {
+        $result = [];
+
+        foreach ($props as $prop) {
+            $result[substr($prop['id'], strpos($prop['id'], 'Name ') + 5)] = $prop['value'];
+        }
+
+        return $result;
     }
 
     /**
@@ -159,7 +177,7 @@ class MicrosoftFactory
         }
 
         return array_map(fn (string $value, string $key) => new SingleValueLegacyExtendedProperty([
-            'id' => sprintf('String %s Name %s', static::$guid, $key),
+            'id' => sprintf('String {%s} Name %s', static::$guid, $key),
             'value' => $value,
         ]), $metadata, array_keys($metadata));
     }

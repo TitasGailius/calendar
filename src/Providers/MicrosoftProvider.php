@@ -98,7 +98,7 @@ class MicrosoftProvider implements Provider
     {
         return $this->handleNotFound(fn () => MicrosoftFactory::toEvent(
             $this->graph
-                ->createRequest('GET', MicrosoftFactory::toEventUrl($selector->id, $selector->calendar))
+                ->createRequest('GET', MicrosoftFactory::toEventUrl($selector->id, $selector->calendar, $options))
                 ->setReturnType(MicrosoftEvent::class)
                 ->execute()
         ));
