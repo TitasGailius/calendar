@@ -313,6 +313,40 @@ class MicrosoftFactory
             $options['$filter'] = implode(' and ', $options['$filter']);
         }
 
+        if ($filters->metadata) {
+            $options = static::optionsForMetadataFilter($options, $filters->metadata);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Parse options for metadata filters.
+     *
+     * @param  array<string, mixed>  $options
+     * @param  array<string, string>  $metadata
+     * @return array<string, mixed>
+     */
+    public static function optionsForMetadataFilter(array $options, array $metadata): array
+    {
+        if (! isset(static::$guid)) {
+            throw new Exception('You need to set GUID in order to filter events by metadata.');
+        }
+
+        $guid = static::$guid;
+
+        $filters = [];
+
+        if (isset($options['$filter'])) {
+            $filters[] = $options['$filter'];
+        }
+
+        foreach ($metadata as $key => $value) {
+            $filters[] = "singleValueExtendedProperties/Any(ep: ep/id eq 'String {{$guid}} Name {$key}' and contains(ep/value, '{$value}'))";
+        }
+
+        $options['$filter'] = implode(' and ', $filters);
+
         return $options;
     }
 
