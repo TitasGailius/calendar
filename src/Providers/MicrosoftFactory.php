@@ -54,7 +54,7 @@ class MicrosoftFactory
      * @param  array<int, string>  $include
      * @return array<string, string>
      */
-    protected function optionsForMetadata(array $options): array
+    protected static function optionsForMetadata(array $options): array
     {
         if (empty(static::$metadata)) {
             return $options;
