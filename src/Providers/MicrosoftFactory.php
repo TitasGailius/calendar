@@ -26,19 +26,58 @@ class MicrosoftFactory
 {
     /**
      * Guid used as a namsepace for event metadata.
-     *
-     * @var string
      */
     public static string $guid;
+
+    /**
+     * Metadata that should be expanded.
+     *
+     * @var array<int, string>
+     */
+    public static array $metadata = [];
 
     /**
      * Make a URL that points to the given event.
      */
     public static function toEventUrl(string $id, string $calendar, array $options): string
     {
+        $options = static::optionsForMetadata($options);
+
         return $calendar === 'primary'
             ? '/me/events/'.$id.'?'.http_build_query($options)
             : '/me/calendars/'.$calendar.'/events/'.$id.'?'.http_build_query($options);
+    }
+
+    /**
+     * Parse included metadata options.
+     *
+     * @param  array<int, string>  $include
+     * @return array<string, string>
+     */
+    protected function optionsForMetadata(array $options): array
+    {
+        if (empty(static::$metadata)) {
+            return $options;
+        }
+
+        if (! isset(static::$guid)) {
+            throw new Exception('You need to set GUID in order to retrieve custom event data.');
+        }
+
+        $guid = static::$guid;
+
+        $filters = array_map(function (string $name) use ($guid) {
+            return "(id eq 'String {{$guid}} Name {$name}')";
+        }, static::$metadata);
+
+        $options['$expand'] = implode(',', array_filter([
+            $options['$expand'] ?? null,
+            ! empty($filters)
+                ? 'singleValueExtendedProperties('.implode(' or ', $filters).')'
+                : null,
+        ]));
+
+        return $options;
     }
 
     /**
@@ -79,8 +118,6 @@ class MicrosoftFactory
 
     /**
      * Convert to calendar instance.
-     *
-     * @return \TitasGailius\Calendar\Resources\Event
      */
     public static function toEvent(MicrosoftEvent $event): Event
     {
@@ -101,7 +138,7 @@ class MicrosoftFactory
     /**
      * Parse event's metadata.
      *
-     * @param array<int, array{id: string, value: string}>  $props
+     * @param  array<int, array{id: string, value: string}>  $props
      * @return array<string, string>
      */
     public static function toMetadata(array $props): array
@@ -154,7 +191,7 @@ class MicrosoftFactory
             $new->setId($event->id);
         }
 
-        if (!empty($event->metadata)) {
+        if (! empty($event->metadata)) {
             $new->setSingleValueExtendedProperties(static::fromMetadata($event->metadata));
         }
 
@@ -172,7 +209,7 @@ class MicrosoftFactory
      */
     public static function fromMetadata(array $metadata): array
     {
-        if (!isset(static::$guid)) {
+        if (! isset(static::$guid)) {
             throw new Exception('You need to set GUID in order to store custom event data.');
         }
 
@@ -239,59 +276,81 @@ class MicrosoftFactory
 
     /**
      * Query string from event filters.
+     *
+     * @param  array<string, mixed>  $options
      */
-    public static function queryStringFromFilters(Filters $filters): string
+    public static function buildQueryString(Filters $filters, array $options): string
     {
-        $query = $filters->expand === true
-            ? static::queryForExpandedEvents($filters)
-            : static::queryForSingleEvents($filters);
+        $options = static::optionsForMetadata($options);
+        $options = static::optionsForFilters($options, $filters);
+
+        return http_build_query($options);
+    }
+
+    /**
+     * Build query options for the given filters.
+     *
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     */
+    public static function optionsForFilters(array $options, Filters $filters): array
+    {
+        $options = $filters->expand === true
+            ? static::optionsForExpandedEvents($options, $filters)
+            : static::optionsForSingleEvents($options, $filters);
 
         if ($limit = $filters->limit) {
-            $query['$top'] = $limit;
+            $options['$top'] = $limit;
         }
 
-        $query['$filter'] = array_merge($query['$filter'] ?? [], $filters->options([
+        $options['$filter'] = array_merge($options['$filter'] ?? [], $filters->options([
             'search' => fn (string $search) => ["contains(subject, '{$search}')"],
         ]));
 
-        if (empty($query['$filter'])) {
-            unset($query['$filter']);
+        if (empty($options['$filter'])) {
+            unset($options['$filter']);
         } else {
-            $query['$filter'] = implode(' and ', $query['$filter']);
+            $options['$filter'] = implode(' and ', $options['$filter']);
         }
 
-        return http_build_query($query);
+        return $options;
     }
 
     /**
      * Get query values for expanded events.
+     *
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
      */
-    public static function queryForExpandedEvents(Filters $filters): array
+    public static function optionsForExpandedEvents(array $options, Filters $filters): array
     {
         if ($filters->expand && (is_null($filters->start) || is_null($filters->end))) {
             throw new InvalidArgumentException('Start and end dates must be specified when expanding Microsoft events.');
         }
 
-        return [
-            'startDateTime' => Carbon::parse($filters->start)->toRfc3339String(),
-            'endDateTime' => Carbon::parse($filters->end)->toRfc3339String(),
-        ];
+        $options['startDateTime'] = Carbon::parse($filters->start)->toRfc3339String();
+        $options['endDateTime'] = Carbon::parse($filters->end)->toRfc3339String();
+
+        return $options;
     }
 
     /**
      * Get query valeus for single events.
+     *
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
      */
-    public static function queryForSingleEvents(Filters $filters): array
+    public static function optionsForSingleEvents(array $options, Filters $filters): array
     {
-        return [
-            '$filter' => $filters->options([
-                'start' => fn (DateTimeInterface $start) => [
-                    'start/dateTime ge \''.Carbon::parse($start)->toRfc3339String().'\'',
-                ],
-                'end' => fn (DateTimeInterface $end) => [
-                    'end/dateTime le \''.Carbon::parse($end)->toRfc3339String().'\'',
-                ],
-            ]),
-        ];
+        $options['$filter'] = array_merge($options['$filter'] ?? [], $filters->options([
+            'start' => fn (DateTimeInterface $start) => [
+                'start/dateTime ge \''.Carbon::parse($start)->toRfc3339String().'\'',
+            ],
+            'end' => fn (DateTimeInterface $end) => [
+                'end/dateTime le \''.Carbon::parse($end)->toRfc3339String().'\'',
+            ],
+        ]));
+
+        return $options;
     }
 }

@@ -61,6 +61,10 @@ class Calendar
             MicrosoftFactory::$guid = $client['guid'];
         }
 
+        if (isset($client['metadata'])) {
+            MicrosoftFactory::$metadata = $client['metadata'];
+        }
+
         return new Repository('microsoft', new MicrosoftProvider($graph));
     }
 

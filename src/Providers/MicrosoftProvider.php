@@ -74,7 +74,7 @@ class MicrosoftProvider implements Provider
             default => '/me/calendars/'.$filters->calendar.'/events',
         };
 
-        $url = $endpoint.'?'.MicrosoftFactory::queryStringFromFilters($filters);
+        $url = $endpoint.'?'.MicrosoftFactory::buildQueryString($filters, $options);
 
         $request = $this->graph
                 ->createCollectionRequest('GET', $url)
