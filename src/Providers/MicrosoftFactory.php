@@ -67,13 +67,13 @@ class MicrosoftFactory
         $guid = static::$guid;
 
         $filters = array_map(function (string $name) use ($guid) {
-            return "(id eq 'String {{$guid}} Name {$name}')";
+            return "id eq 'String {{$guid}} Name {$name}'";
         }, static::$metadata);
 
         $options['$expand'] = implode(',', array_filter([
             $options['$expand'] ?? null,
             ! empty($filters)
-                ? 'singleValueExtendedProperties('.implode(' or ', $filters).')'
+                ? 'singleValueExtendedProperties($filter='.implode(' or ', $filters).')'
                 : null,
         ]));
 
