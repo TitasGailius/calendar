@@ -39,7 +39,7 @@ class Calendar
     /**
      * Instantiate a new Microsoft provider instance.
      *
-     * @param  array{client_id: string, client_secret: string, guid: ?string}  $client
+     * @param  array{client_id: string, client_secret: string, guid?: string, metadata?: array<string>}  $client
      * @param  array{refresh_token: string, access_token: string, created: int, expires_in: int}  $token
     *  @param  Closure(array{refresh_token: string, access_token: string, created: int, expires_in: int}): void  $onTokenRefresh
      */
@@ -57,9 +57,7 @@ class Calendar
 
         $graph->setAccessToken($token['access_token']);
 
-        if (isset($client['guid'])) {
-            MicrosoftFactory::$guid = $client['guid'];
-        }
+        MicrosoftFactory::$guid = $client['guid'] ?? $client['client_id'];
 
         if (isset($client['metadata'])) {
             MicrosoftFactory::$metadata = $client['metadata'];
