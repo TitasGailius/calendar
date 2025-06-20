@@ -98,7 +98,7 @@ class MicrosoftProvider implements Provider
     {
         return $this->handleNotFound(fn () => MicrosoftFactory::toEvent(
             $this->graph
-                ->createRequest('GET', MicrosoftFactory::toEventUrl($selector->id, $selector->calendar, $options))
+                ->createRequest('GET', MicrosoftFactory::toEventUrl($selector->id, $selector->calendar, $options, true))
                 ->setReturnType(MicrosoftEvent::class)
                 ->execute()
         ));
@@ -126,7 +126,7 @@ class MicrosoftProvider implements Provider
     {
         $updated = MicrosoftFactory::toEvent(
             $this->graph
-                ->createRequest('PATCH', MicrosoftFactory::toEventUrl($event->id, $event->calendar))
+                ->createRequest('PATCH', MicrosoftFactory::toEventUrl($event->id, $event->calendar, $options))
                 ->attachBody(MicrosoftFactory::fromEvent($event))
                 ->setReturnType(MicrosoftEvent::class)
                 ->execute()
@@ -141,7 +141,7 @@ class MicrosoftProvider implements Provider
     public function deleteEvent(Selector $selector, array $options = []): void
     {
         $this->graph
-            ->createRequest('DELETE', MicrosoftFactory::toEventUrl($selector->id, $selector->calendar))
+            ->createRequest('DELETE', MicrosoftFactory::toEventUrl($selector->id, $selector->calendar, $options))
             ->execute();
     }
 

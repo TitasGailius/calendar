@@ -39,9 +39,11 @@ class MicrosoftFactory
     /**
      * Make a URL that points to the given event.
      */
-    public static function toEventUrl(string $id, string $calendar, array $options): string
+    public static function toEventUrl(string $id, string $calendar, array $options, bool $includeMetadata = false): string
     {
-        $options = static::optionsForMetadata($options);
+        if ($includeMetadata) {
+            $options = static::optionsForMetadata($options);
+        }
 
         return $calendar === 'primary'
             ? '/me/events/'.$id.'?'.http_build_query($options)
@@ -213,10 +215,16 @@ class MicrosoftFactory
             throw new Exception('You need to set GUID in order to store custom event data.');
         }
 
-        return array_map(fn (string $value, string $key) => new SingleValueLegacyExtendedProperty([
-            'id' => sprintf('String {%s} Name %s', static::$guid, $key),
-            'value' => $value,
-        ]), $metadata, array_keys($metadata));
+        $result = [];
+
+        foreach ($metadata as $key => $value) {
+            $result[] = new SingleValueLegacyExtendedProperty([
+                'id' => sprintf('String {%s} Name %s', static::$guid, $key),
+                'value' => $value,
+            ]);
+        }
+
+        return $result;
     }
 
     /**
