@@ -32,6 +32,7 @@ class Event extends Resource
         public string $title,
         public DateTimeInterface $start,
         public DateTimeInterface $end,
+        public bool $allDay = false,
         public string $calendar = 'primary',
         public array $attendees = [],
         public ?Recurrence $recurrence = null,

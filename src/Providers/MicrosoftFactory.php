@@ -128,6 +128,7 @@ class MicrosoftFactory
             attendees: array_map([static::class, 'toAttendee'], $event->getAttendees()),
             start: Carbon::parse($event->getStart()->getDateTime()),
             end: Carbon::parse($event->getEnd()->getDateTime()),
+            allDay: $event->getIsAllDay(),
             organiser: new Organiser($event->getOrganizer()->getEmailAddress()->getAddress()),
             metadata: static::toMetadata($event->getSingleValueExtendedProperties() ?? []),
         ))->existing(
@@ -195,6 +196,10 @@ class MicrosoftFactory
 
         if (! empty($event->metadata)) {
             $new->setSingleValueExtendedProperties(static::fromMetadata($event->metadata));
+        }
+
+        if ($event->allDay) {
+            $new->setIsAllDay(true);
         }
 
         return $new

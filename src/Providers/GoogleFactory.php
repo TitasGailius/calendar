@@ -67,8 +67,13 @@ class GoogleFactory
         return (new Event(
             title: $event->getSummary(),
             attendees: array_map([static::class, 'toAttendee'], $event->getAttendees()),
-            start: Carbon::parse($event->getStart()->getDateTime()),
-            end: Carbon::parse($event->getEnd()->getDateTime()),
+            start: is_null($event->getStart()->getDateTime())
+                ? Carbon::parse($event->getStart()->getDate())->startOfDay()
+                : Carbon::parse($event->getStart()->getDateTime()),
+            end: is_null($event->getEnd()->getDateTime())
+                ? Carbon::parse($event->getEnd()->getDate())->addDay()->startOfDay()
+                : Carbon::parse($event->getEnd()->getDateTime()),
+            allDay: is_null($event->getStart()->getDateTime()),
             organiser: new Organiser($event->getOrganizer()->getEmail()),
             metadata: array_merge(
                 $event->getExtendedProperties()?->getPrivate() ?? [],
@@ -106,8 +111,12 @@ class GoogleFactory
     {
         return new GoogleEvent([
             'summary' => $event->title,
-            'start' => ['dateTime' => Carbon::parse($event->start)->toRfc3339String()],
-            'end' => ['dateTime' => Carbon::parse($event->end)->toRfc3339String()],
+            'start' => $event->allDay
+                ?  ['date' => Carbon::parse($event->start)->toDateString()]
+                :  ['dateTime' => Carbon::parse($event->start)->toRfc3339String()],
+            'end' => $event->allDay
+                ?  ['date' => Carbon::parse($event->start)->toDateString()]
+                :  ['dateTime' => Carbon::parse($event->end)->toRfc3339String()],
             'attendees' => array_map(fn (Attendee $attendee) => [
                 'email' => $attendee->email,
                 'responseStatus' => match ($attendee->rsvp) {
