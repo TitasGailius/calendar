@@ -29,7 +29,7 @@ class Event extends Resource
      * @param  array<string, string|null>  $metadata
      */
     public function __construct(
-        public string $title,
+        public ?string $title,
         public DateTimeInterface $start,
         public DateTimeInterface $end,
         public bool $allDay = false,
