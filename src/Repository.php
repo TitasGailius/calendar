@@ -84,7 +84,7 @@ final class Repository implements RepositoryContract
      */
     public function with(array $options = []): static
     {
-        return new static($this->name, $this->provider, array_merge($this->options, $options));
+        return new self($this->name, $this->provider, array_merge($this->options, $options));
     }
 
     /**

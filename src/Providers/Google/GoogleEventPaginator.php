@@ -79,6 +79,6 @@ final class GoogleEventPaginator extends CollectionPaginator
      */
     protected function reset(): static
     {
-        return new static($this->service, $this->filters, $this->options);
+        return new self($this->service, $this->filters, $this->options);
     }
 }

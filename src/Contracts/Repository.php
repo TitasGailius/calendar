@@ -2,7 +2,6 @@
 
 namespace TitasGailius\Calendar\Contracts;
 
-use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\Filters;
@@ -12,9 +11,6 @@ interface Repository
 {
     /**
      * Get user's calendar.
-     *
-     * @param  string  $calendar
-     * @return \TitasGailius\Calendar\Resources\Calendar
      */
     public function getCalendar(string $calendar = 'primary'): Calendar;
 

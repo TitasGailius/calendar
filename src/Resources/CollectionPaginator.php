@@ -6,6 +6,7 @@ use TitasGailius\Calendar\Contracts\Paginator;
 
 /**
  * @template TCollection of \TitasGailius\Calendar\Resources\Collection
+ *
  * @implements \TitasGailius\Calendar\Contracts\Paginator<TCollection>
  */
 abstract class CollectionPaginator implements Paginator

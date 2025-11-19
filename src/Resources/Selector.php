@@ -2,10 +2,6 @@
 
 namespace TitasGailius\Calendar\Resources;
 
-use Carbon\Carbon;
-use ReflectionClass;
-use InvalidArgumentException;
-
 class Selector
 {
     /**

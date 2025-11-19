@@ -4,15 +4,16 @@ namespace TitasGailius\Calendar;
 
 use Carbon\Carbon;
 use Closure;
+use Exception;
 use Google\Client;
 use Google\Service\Calendar as CalendarService;
 use GuzzleHttp\Client as Guzzle;
 use Microsoft\Graph\Graph;
 use TitasGailius\Calendar\Contracts\Repository as RepositoryContract;
+use TitasGailius\Calendar\Exceptions\RefreshTokenExpiredException;
 use TitasGailius\Calendar\Providers\GoogleProvider;
 use TitasGailius\Calendar\Providers\MicrosoftFactory;
 use TitasGailius\Calendar\Providers\MicrosoftProvider;
-use TitasGailius\Calendar\Repository;
 
 class Calendar
 {
@@ -28,12 +29,24 @@ class Calendar
         $client->setAccessToken($token);
 
         if ($client->isAccessTokenExpired()) {
-            $onTokenRefresh($client->fetchAccessTokenWithRefreshToken(
-                $client->getRefreshToken()
-            ));
+            $onTokenRefresh(static::refreshGoogleToken($client));
         }
 
         return new Repository('google', new GoogleProvider(new CalendarService($client)));
+    }
+
+    /**
+     * Refresh Google token.
+     */
+    protected static function refreshGoogleToken(Client $client)
+    {
+        $response = $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+        if (isset($response['error'])) {
+            throw new RefreshTokenExpiredException('google');
+        }
+
+        return $response;
     }
 
     /**
@@ -41,7 +54,7 @@ class Calendar
      *
      * @param  array{client_id: string, client_secret: string, guid?: string, metadata?: array<string>}  $client
      * @param  array{refresh_token: string, access_token: string, created: int, expires_in: int}  $token
-    *  @param  Closure(array{refresh_token: string, access_token: string, created: int, expires_in: int}): void  $onTokenRefresh
+     * @param  Closure(array{refresh_token: string, access_token: string, created: int, expires_in: int}): void  $onTokenRefresh
      */
     public static function microsoft(array $client, array $token, Closure $onTokenRefresh): RepositoryContract
     {
@@ -70,18 +83,22 @@ class Calendar
      * Refresh microsoft token.
      *
      * @param  mixed[]  $client
-     * @return mixed[]
+     * @return array{refresh_token: string, access_token: string, created: int, expires_in: int}
      */
     protected static function refreshMicrosoftToken(array $client, string $refreshToken): array
     {
-        $response = (new Guzzle)->post('https://login.microsoftonline.com/common/oauth2/v2.0/token', [
-            'form_params' => [
-                'client_id' => $client['client_id'],
-                'client_secret' => $client['client_secret'],
-                'grant_type' => 'refresh_token',
-                'refresh_token' => $refreshToken,
-            ],
-        ]);
+        try {
+            $response = (new Guzzle)->post('https://login.microsoftonline.com/common/oauth2/v2.0/token', [
+                'form_params' => [
+                    'client_id' => $client['client_id'],
+                    'client_secret' => $client['client_secret'],
+                    'grant_type' => 'refresh_token',
+                    'refresh_token' => $refreshToken,
+                ],
+            ]);
+        } catch (Exception $e) {
+            throw new RefreshTokenExpiredException('microsoft');
+        }
 
         $payload = json_decode((string) $response->getBody(), true);
 

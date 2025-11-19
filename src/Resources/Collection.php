@@ -3,11 +3,11 @@
 namespace TitasGailius\Calendar\Resources;
 
 use ArrayAccess;
-use Countable;
 use ArrayIterator;
-use Traversable;
+use Countable;
 use IteratorAggregate;
 use JsonSerializable;
+use Traversable;
 
 /**
  * @template TValue
@@ -29,8 +29,6 @@ abstract class Collection implements ArrayAccess, Countable, IteratorAggregate, 
 
     /**
      * Determine if the current collection is empty.
-     *
-     * @return boolean
      */
     public function isEmpty(): bool
     {
@@ -39,8 +37,6 @@ abstract class Collection implements ArrayAccess, Countable, IteratorAggregate, 
 
     /**
      * Determine if the current collection is not empty.
-     *
-     * @return boolean
      */
     public function isNotEmpty(): bool
     {
@@ -100,7 +96,6 @@ abstract class Collection implements ArrayAccess, Countable, IteratorAggregate, 
      * Determine if an item exists at an offset.
      *
      * @param  int  $key
-     * @return bool
      */
     public function offsetExists(mixed $key): bool
     {

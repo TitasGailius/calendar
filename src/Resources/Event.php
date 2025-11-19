@@ -3,7 +3,6 @@
 namespace TitasGailius\Calendar\Resources;
 
 use DateTimeInterface;
-use TitasGailius\Calendar\Resources\Recurrence;
 
 class Event extends Resource
 {

@@ -11,4 +11,3 @@ class Organiser extends Resource
         public readonly string $email,
     ) {}
 }
-

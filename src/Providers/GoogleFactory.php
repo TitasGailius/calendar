@@ -3,23 +3,18 @@
 namespace TitasGailius\Calendar\Providers;
 
 use Carbon\Carbon;
-use Exception;
 use Google\Model;
 use Google\Service\Calendar\CalendarList as GoogleCalendarList;
 use Google\Service\Calendar\CalendarListEntry as GoogleCalendarListEntry;
 use Google\Service\Calendar\Event as GoogleEvent;
 use Google\Service\Calendar\EventAttendee as GoogleEventAttendee;
-use Google\Service\Calendar\EventDateTime;
 use Google\Service\Calendar\Events as GoogleEvents;
-use TitasGailius\Calendar\Contracts\CalendarPaginator;
-use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Resources\Attendee;
 use TitasGailius\Calendar\Resources\Calendar;
 use TitasGailius\Calendar\Resources\CalendarCollection;
 use TitasGailius\Calendar\Resources\Event;
 use TitasGailius\Calendar\Resources\EventCollection;
 use TitasGailius\Calendar\Resources\Filters;
-use TitasGailius\Calendar\Resources\GeneralPaginator;
 use TitasGailius\Calendar\Resources\Organiser;
 use TitasGailius\Calendar\Resources\Rsvp;
 
@@ -59,8 +54,6 @@ class GoogleFactory
 
     /**
      * Instantiate a new event instance.
-     *
-     * @return \TitasGailius\Calendar\Resources\Event
      */
     public static function toEvent(GoogleEvent $event): Event
     {
@@ -112,11 +105,11 @@ class GoogleFactory
         return new GoogleEvent([
             'summary' => $event->title,
             'start' => $event->allDay
-                ?  ['date' => Carbon::parse($event->start)->toDateString()]
-                :  ['dateTime' => Carbon::parse($event->start)->toRfc3339String()],
+                ? ['date' => Carbon::parse($event->start)->toDateString()]
+                : ['dateTime' => Carbon::parse($event->start)->toRfc3339String()],
             'end' => $event->allDay
-                ?  ['date' => Carbon::parse($event->start)->toDateString()]
-                :  ['dateTime' => Carbon::parse($event->end)->toRfc3339String()],
+                ? ['date' => Carbon::parse($event->start)->toDateString()]
+                : ['dateTime' => Carbon::parse($event->end)->toRfc3339String()],
             'attendees' => array_map(fn (Attendee $attendee) => [
                 'email' => $attendee->email,
                 'responseStatus' => match ($attendee->rsvp) {

@@ -2,8 +2,6 @@
 
 namespace TitasGailius\Calendar\Resources;
 
-use DateTimeInterface;
-
 /**
  * @template TValue
  */
@@ -12,7 +10,7 @@ class Calendar extends Resource
     /**
      * Instantiate a new calendar instance.
      *
-     * @param  TValue $raw
+     * @param  TValue  $raw
      */
     public function __construct(
         public readonly string $provider,

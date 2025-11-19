@@ -3,7 +3,6 @@
 namespace TitasGailius\Calendar\Resources;
 
 use DateTimeInterface;
-use ReflectionClass;
 use InvalidArgumentException;
 
 class Filters
@@ -26,7 +25,7 @@ class Filters
     /**
      * Parse the given filters.
      */
-    public static function parse(Filters|null $filters): Filters
+    public static function parse(?Filters $filters): Filters
     {
         return $filters ?? new Filters;
     }

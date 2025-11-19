@@ -28,9 +28,7 @@ class MicrosoftProvider implements Provider
     /**
      * Get the specific calendar.
      *
-     * @param  string  $calendar
      * @param  array<string, mixed>  $options
-     * @return \TitasGailius\Calendar\Resources\Calendar
      */
     public function getCalendar(string $calendar, array $options = []): Calendar
     {
@@ -77,8 +75,8 @@ class MicrosoftProvider implements Provider
         $url = $endpoint.'?'.MicrosoftFactory::buildQueryString($filters, $options);
 
         $request = $this->graph
-                ->createCollectionRequest('GET', $url)
-                ->setReturnType(MicrosoftEvent::class);
+            ->createCollectionRequest('GET', $url)
+            ->setReturnType(MicrosoftEvent::class);
 
         return new GeneralCollectionPaginator(
             next: fn () => new Page(
@@ -118,7 +116,6 @@ class MicrosoftProvider implements Provider
         );
     }
 
-
     /**
      * {@inheritdoc}
      */
@@ -149,6 +146,7 @@ class MicrosoftProvider implements Provider
      * Handle not found exception.
      *
      * @template TValue
+     *
      * @param  callable(): TValue  $callback
      * @return ?TValue
      */

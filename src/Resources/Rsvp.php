@@ -16,7 +16,7 @@ enum Rsvp implements JsonSerializable
      */
     public function jsonSerialize(): string
     {
-        return match($this) {
+        return match ($this) {
             Rsvp::ACCEPTED => 'accepted',
             Rsvp::DECLINED => 'declined',
             Rsvp::PENDING => 'pending',

@@ -7,7 +7,7 @@ use PHPUnit\Framework\Attributes\Test;
 class CalendarTest extends TestCase
 {
     #[Test]
-    public function trueIsTrue(): void
+    public function true_is_true(): void
     {
         $this->assertTrue(true);
     }

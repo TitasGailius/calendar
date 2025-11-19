@@ -3,7 +3,6 @@
 namespace TitasGailius\Calendar\Resources;
 
 use Closure;
-use TitasGailius\Calendar\Resources\CollectionPaginator;
 
 /**
  * @template TCollection of \TitasGailius\Calendar\Resources\Collection

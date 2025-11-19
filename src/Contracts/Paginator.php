@@ -20,7 +20,6 @@ interface Paginator
     /**
      * Loop through each item.
      *
-     * @param  callable  $callback
      * @return $this
      */
     public function each(callable $callback): static;

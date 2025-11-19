@@ -12,9 +12,7 @@ interface Provider
     /**
      * Get the specific calendar.
      *
-     * @param  string  $calendar
      * @param  array<string, mixed>  $options
-     * @return \TitasGailius\Calendar\Resources\Calendar
      */
     public function getCalendar(string $calendar, array $options = []): Calendar;
 

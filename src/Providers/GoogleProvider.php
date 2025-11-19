@@ -6,14 +6,10 @@ use Google\Service\Calendar as CalendarService;
 use Google\Service\Exception;
 use TitasGailius\Calendar\Contracts\Paginator;
 use TitasGailius\Calendar\Contracts\Provider;
-use TitasGailius\Calendar\Providers\GoogleFactory;
 use TitasGailius\Calendar\Providers\Google\GoogleCalendarPaginator;
 use TitasGailius\Calendar\Providers\Google\GoogleEventPaginator;
 use TitasGailius\Calendar\Resources\Calendar;
-use TitasGailius\Calendar\Resources\CalendarCollection;
-use TitasGailius\Calendar\Resources\CollectionPaginator;
 use TitasGailius\Calendar\Resources\Event;
-use TitasGailius\Calendar\Resources\EventCollection;
 use TitasGailius\Calendar\Resources\Filters;
 use TitasGailius\Calendar\Resources\Selector;
 
@@ -29,9 +25,7 @@ class GoogleProvider implements Provider
     /**
      * Get the specific calendar.
      *
-     * @param  string  $calendar
      * @param  array<string, mixed>  $options
-     * @return \TitasGailius\Calendar\Resources\Calendar
      */
     public function getCalendar(string $calendar, array $options = []): Calendar
     {
